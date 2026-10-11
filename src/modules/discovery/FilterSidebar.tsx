@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import type { DateFilter, EventFilters } from "@/shared/types";
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
 
 const DATES: { v: DateFilter; l: string }[] = [
   { v: "any", l: "Anytime" },
