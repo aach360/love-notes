@@ -7,6 +7,8 @@ import { Logo as Brand } from "@/components/Logo";
 
 import { RamesesHelper } from "@/modules/assistant/RamesesHelper";
 
+import { PosterScanner } from "@/modules/scanner/PosterScanner";
+
 const NAV = [
   { to: "/", label: "Discover", icon: Sparkles },
   { to: "/saved", label: "Saved", icon: Heart },
@@ -81,7 +83,7 @@ function AccountButton() {
       className="aero-btn aero-pearl inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
     >
       <UserRound className="size-4" />
-      {user ? "Account" : "Sign in"}
+      <span className="sr-only sm:not-sr-only">{user ? "Account" : "Sign in"}</span>
     </Link>
   );
 }
@@ -139,7 +141,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
-          <AccountButton />
+          <div className="flex shrink-0 items-center gap-1">
+            <PosterScanner />
+            <AccountButton />
+          </div>
         </div>
       </header>
 

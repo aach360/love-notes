@@ -3,7 +3,7 @@
   <body>
     <h1>Confirm your UNCitall account</h1>
     <p>Welcome to UNCitall. Confirm your email to save campus events and sync your plan.</p>
-    <p><a href="{{ .ConfirmationURL }}">Confirm email</a></p>
+    <p><a href="{{ .SiteURL }}/auth?token_hash={{ .TokenHash }}&amp;type=email">Confirm email</a></p>
     <p>If you didn't request this account, you can ignore this email.</p>
   </body>
 </html>

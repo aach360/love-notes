@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { checkGoogleSignIn } from "@/modules/auth/auth.functions";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AeroButton, PageTitle, Panel } from "@/components/aero";
 import { useAuth } from "@/modules/auth/AuthProvider";
@@ -34,14 +34,37 @@ function AuthPage() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const verifying = useRef(false);
   useEffect(() => {
+    const url = new URL(window.location.href);
+    const tokenHash = url.searchParams.get("token_hash");
+    if (tokenHash && url.searchParams.get("type") === "email" && !verifying.current) {
+      verifying.current = true;
+      setBusy(true);
+      window.history.replaceState(null, "", "/auth");
+      void supabase.auth
+        .verifyOtp({ token_hash: tokenHash, type: "email" })
+        .then(({ error }) => {
+          if (error)
+            setErr(
+              "This confirmation link has expired or was already used. Sign in, or request a new confirmation below.",
+            );
+          else {
+            setMsg("Email confirmed. You’re ready to discover events.");
+            void navigate({ to: "/" });
+          }
+        })
+        .catch(() => setErr("Couldn’t confirm your email. Please try again."))
+        .finally(() => setBusy(false));
+      return;
+    }
     const params = new URLSearchParams(window.location.hash.slice(1));
     const error = params.get("error_description");
     if (error) {
       setErr(error);
       window.history.replaceState(null, "", window.location.pathname);
     }
-  }, []);
+  }, [navigate]);
 
   async function google() {
     setErr(null);
@@ -126,6 +149,7 @@ function AuthPage() {
           Continue with Google
         </AeroButton>
         <div className="text-center text-xs text-muted-foreground">or use email</div>
+
         <form onSubmit={submit} className="space-y-3">
           <input
             type="email"
@@ -158,6 +182,34 @@ function AuthPage() {
             {mode === "in" ? "Sign in" : "Create account"}
           </AeroButton>
         </form>
+        <button
+          type="button"
+          disabled={busy || !email.trim()}
+          onClick={async () => {
+            setBusy(true);
+            setErr(null);
+            setMsg(null);
+            try {
+              const { error } = await supabase.auth.resend({
+                type: "signup",
+                email: email.trim(),
+                options: { emailRedirectTo: new URL("/auth", window.location.origin).href },
+              });
+              if (error) setErr(error.message);
+              else
+                setMsg(
+                  "If this account needs confirmation, a fresh link is on its way. Open the newest email.",
+                );
+            } catch {
+              setErr("Couldn’t resend confirmation. Try again.");
+            } finally {
+              setBusy(false);
+            }
+          }}
+          className="min-h-11 text-sm font-semibold text-primary disabled:opacity-50"
+        >
+          Resend confirmation email
+        </button>
         <button
           type="button"
           disabled={busy}

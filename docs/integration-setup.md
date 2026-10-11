@@ -60,3 +60,9 @@ SMTP settings were verified persisted after the owner saved the app password. Th
 ## Rameses web helper
 
 The bottom-right pixel mascot opens a Gemini-powered helper. Add `GEMINI_API_KEY` to ignored `.env.local` (and your hosting service's server environment), then restart the app. Optional `GEMINI_MODEL` defaults to `gemini-3.1-flash-lite`. Keys stay on the server. Questions and the last eight chat messages are sent to Google when configured; chats remain in memory and clear on reload. Without a key, the helper explicitly reports unconfigured AI and offers imported event matches. Event ids from model responses are validated against the server's shortlist; invalid output falls back to real matches. This web helper does not change the Photon agent.
+
+### Live email confirmation and poster scanning
+
+The hosted Supabase Site URL must be `https://uncitall.netlify.app`. The confirmation template links directly to `{{ .SiteURL }}/auth?token_hash={{ .TokenHash }}&type=email`; the auth route verifies that hash with Supabase and removes it from the address bar. Old emails keep their original links: enter your email on the account page and choose **Resend confirmation email**, then open the newest message. Email confirmation remains enabled.
+
+The camera button in the header opens poster scanning. Take a photo or upload an image; the browser downsizes it before the server sends it to Gemini using the server-only `GEMINI_API_KEY`. Only visible text is extracted, then matched against imported events and existing club listings. Results are suggestions to review, not newly created events. Photos are not stored by UNCitall; avoid including private information. Clubs still require their normal membership/invite flow.
