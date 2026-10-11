@@ -127,20 +127,37 @@ export function baselineRecommendations(input: {
     if (!previous || event.startsAt < previous.startsAt) nearest.set(key, event);
   }
   const pool = [...nearest.values()].filter((e) => !swiped.has(e.id));
-  const urgency = (event: PulseEvent) => {
-    const days = Math.max(0, (Date.parse(event.startsAt) - now.getTime()) / 86400000);
-    return days <= 2 ? 0 : days <= 7 ? 1 : days <= 14 ? 2 : days <= 30 ? 3 : 4;
-  };
-  const scored = pool.map((event) => {
-    const keys = new Set(featureKeys(event));
-    let pref = 0;
-    for (const k of keys) pref += input.prefs.weights[k] ?? 0;
-    const hoursAway = Math.max(0, (new Date(event.startsAt).getTime() - now.getTime()) / 3600_000);
-    const soon = 1 / (1 + hoursAway / 48);
-    const score = Math.tanh(pref / 4) * 2 + soon * 2 + jitter(event.id) * 0.2;
-    return { event, score: Math.round(score * 100) / 100, reason: explain(event, input.prefs) };
-  });
-  scored.sort((a, b) => urgency(a.event) - urgency(b.event) || b.score - a.score);
+  // A duplicate source record must not resurface a previously swiped listing.
+  const identity = (event: PulseEvent) =>
+    JSON.stringify([
+      event.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim(),
+      event.startsAt,
+      (event.location ?? "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim(),
+    ]);
+  const seenListings = new Set(input.events.filter((event) => swiped.has(event.id)).map(identity));
+  const scored = pool
+    .filter((event) => !seenListings.has(identity(event)))
+    .map((event) => {
+      const keys = new Set(featureKeys(event));
+      let pref = 0;
+      for (const k of keys) pref += input.prefs.weights[k] ?? 0;
+      const hoursAway = Math.max(
+        0,
+        (new Date(event.startsAt).getTime() - now.getTime()) / 3600_000,
+      );
+      // Smooth timing prior: half its bonus at 10 days, no date buckets.
+      // Bounded interests can outweigh the entire 1.2-point timing bonus.
+      const soon = 1 / (1 + Math.exp((hoursAway / 24 - 10) / 4));
+      const score = Math.tanh(pref / 3) * 3 + soon * 1.2 + jitter(event.id) * 0.1;
+      return { event, score: Math.round(score * 100) / 100, reason: explain(event, input.prefs) };
+    });
+  scored.sort((a, b) => b.score - a.score);
   const out: RankedEvent[] = [];
   const rest = [...scored];
   while (rest.length) {
@@ -148,7 +165,7 @@ export function baselineRecommendations(input: {
     let idx = 0;
     if (lastTwo.length === 2 && lastTwo[0] === lastTwo[1]) {
       const alt = rest.findIndex(
-        (r) => urgency(r.event) === urgency(rest[0]!.event) && r.event.categories[0] !== lastTwo[0],
+        (r) => rest[0]!.score - r.score <= 0.35 && r.event.categories[0] !== lastTwo[0],
       );
       if (alt > 0) idx = alt;
     }

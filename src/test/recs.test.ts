@@ -80,7 +80,7 @@ describe("upcoming events and recurring series", () => {
     startsAt: new Date(now.getTime() + days * 86400000).toISOString(),
     endsAt: new Date(now.getTime() + days * 86400000 + 3600000).toISOString(),
   });
-  it("prioritizes this week over strong interests several weeks away", () => {
+  it("lets strong interests outweigh timing rather than forcing date buckets", () => {
     const soon = { ...occurrence("soon", 1), title: "New activity", topics: [] };
     const later = { ...occurrence("later", 28), title: "Favorite activity", topics: ["arts"] };
     const ranked = getRecommendations({
@@ -88,7 +88,7 @@ describe("upcoming events and recurring series", () => {
       events: [later, soon],
       prefs: { ...emptyPreferences(), weights: { "topic:arts": 1000 } },
     });
-    expect(ranked[0]?.event.id).toBe("soon");
+    expect(ranked[0]?.event.id).toBe("later");
   });
   it("shows only the nearest occurrence, including after it is saved or planned", () => {
     const series = [occurrence("first", 1), occurrence("second", 8), occurrence("third", 15)];
@@ -116,4 +116,43 @@ describe("upcoming events and recurring series", () => {
     const workshop = { ...occurrence("workshop", 2), title: "Workshop" };
     expect(getRecommendations({ ...input, events: [meetup, workshop] })).toHaveLength(2);
   });
+});
+
+it("prefers sooner events when interests match, and never recycles consumed cards", () => {
+  const now = new Date("2026-10-11T12:00:00Z");
+  const base = buildDemoEvents(now)[0]!;
+  const soon = {
+    ...base,
+    id: "near",
+    title: "Near event",
+    startsAt: "2026-10-12T16:00:00Z",
+    endsAt: "2026-10-12T17:00:00Z",
+  };
+  const later = {
+    ...base,
+    id: "far",
+    title: "Later event",
+    startsAt: "2026-10-25T16:00:00Z",
+    endsAt: "2026-10-25T17:00:00Z",
+  };
+  const input = { events: [later, soon], prefs: emptyPreferences(), filters, now, swipes: [] };
+  expect(getRecommendations(input)[0]?.event.id).toBe("near");
+  expect(
+    getRecommendations({
+      ...input,
+      swipes: [soon, later].map((event) => ({
+        eventId: event.id,
+        direction: "pass" as const,
+        at: now.toISOString(),
+      })),
+    }),
+  ).toEqual([]);
+  const duplicate = { ...soon, id: "duplicate", organizer: "Different source label" };
+  expect(
+    getRecommendations({
+      ...input,
+      events: [soon, duplicate],
+      swipes: [{ eventId: "near", direction: "like", at: now.toISOString() }],
+    }),
+  ).toEqual([]);
 });
