@@ -58,7 +58,8 @@ describe("UNC Calendar (Localist)", () => {
     const page2 = localist(2, 2, [lev(9, [{ id: 2, start: "2026-10-18T19:00:00-04:00" }])]);
     const pages = [page1, page2];
     const adapter = createUncCalendarAdapter({ fetchPage: async () => pages.shift()!, delayMs: 0 });
-    const imp = createImporter([adapter]);
+    const imp = createImporter([adapter], { persist: false });
+    await imp.refresh(true, now);
     const feed = await imp.getFeed(now);
     expect(feed.events.map((e) => e.id).sort()).toEqual(["unc-calendar:9:1", "unc-calendar:9:2"]);
     expect(feed.sources[0]!.complete).toBe(true);
@@ -161,49 +162,56 @@ describe("aggregation, cache and integrity", () => {
   const ok = (id: SourceAdapter["id"], events: PulseEvent[]): SourceAdapter => ({ id, optional: false, fetch: async () => ({ status: "ok", events, complete: true, skipped: 0, warnings: [] }) });
   const fail = (id: SourceAdapter["id"]): SourceAdapter => ({ id, optional: false, fetch: async () => { throw new Error(`${id}: HTTP 503`); } });
 
-  it("one failing source doesn't erase others; failed ≠ healthy empty; missing TM key isn't demo", async () => {
-    const imp = createImporter([fail("heellife"), ok("unc-calendar", []), ok("carrboro", [ev("c1", "2026-10-12T20:00:00Z", null)]), createTicketmasterAdapter({ getKey: () => undefined })]);
+  const mk = (ads: SourceAdapter[]) => createImporter(ads, { persist: false });
+
+  it("one failing source doesn't erase others; failed ≠ healthy empty", async () => {
+    const imp = mk([fail("heellife"), ok("unc-calendar", []), ok("carrboro", [ev("c1", "2026-10-12T20:00:00Z", null)]), createTicketmasterAdapter({ getKey: () => undefined })]);
+    await imp.refresh(true, now);
     const f = await imp.getFeed(now);
     expect(f.origin).toBe("live");
     expect(f.events.map((e) => e.id)).toEqual(["c1"]);
     const by = Object.fromEntries(f.sources.map((s) => [s.source, s.status]));
     expect(by).toEqual({ heellife: "error", "unc-calendar": "ok", carrboro: "ok", ticketmaster: "unconfigured" });
-    expect(f.events.every((e) => !e.isDemo)).toBe(true);
   });
 
-  it("all healthy but empty → real empty state, not demo", async () => {
-    const f = await createImporter([ok("heellife", [])]).getFeed(now);
+  it("all healthy but empty → real empty state", async () => {
+    const imp = mk([ok("heellife", [])]);
+    await imp.refresh(true, now);
+    const f = await imp.getFeed(now);
     expect(f.origin).toBe("live");
     expect(f.events).toEqual([]);
   });
 
-  it("every source failing → labelled demo only", async () => {
-    const f = await createImporter([fail("heellife"), fail("carrboro")]).getFeed(now);
-    expect(f.origin).toBe("demo");
-    expect(f.events.every((e) => e.isDemo)).toBe(true);
+  it("every source failing → unavailable, never demo events", async () => {
+    const imp = mk([fail("heellife"), fail("carrboro")]);
+    await imp.refresh(true, now);
+    const f = await imp.getFeed(now);
+    expect(f.origin).toBe("unavailable");
+    expect(f.events).toEqual([]);
   });
 
-  it("caches 15 min, coalesces concurrent refreshes", async () => {
+  it("reads never fetch; concurrent refreshes coalesce", async () => {
     const fn = vi.fn(async () => ({ status: "ok" as const, events: [], complete: true, skipped: 0, warnings: [] }));
-    const imp = createImporter([{ id: "heellife", optional: false, fetch: fn }]);
-    await Promise.all([imp.getFeed(now), imp.getFeed(now), imp.getFeed(now)]);
-    await imp.getFeed(new Date(now.getTime() + 10 * 60_000));
+    const imp = mk([{ id: "heellife", optional: false, fetch: fn }]);
+    await imp.getFeed(now);
+    expect(fn).toHaveBeenCalledTimes(0);
+    await Promise.all([imp.refresh(true, now), imp.refresh(true, now)]);
     expect(fn).toHaveBeenCalledTimes(1);
-    await imp.getFeed(new Date(now.getTime() + 16 * 60_000));
-    expect(fn).toHaveBeenCalledTimes(2);
   });
 
   it("serves stale last-known-good after a failure, marked stale", async () => {
     let n = 0;
-    const imp = createImporter([{ id: "heellife", optional: false, fetch: async () => { if (n++) throw new Error("down"); return { status: "ok", events: [ev("h1", "2026-10-12T20:00:00Z", null)], complete: true, skipped: 0, warnings: [] }; } }]);
-    await imp.getFeed(now);
-    const f = await imp.getFeed(new Date(now.getTime() + 16 * 60_000));
+    const imp = mk([{ id: "heellife", optional: false, fetch: async () => { if (n++) throw new Error("down"); return { status: "ok", events: [ev("h1", "2026-10-12T20:00:00Z", null)], complete: true, skipped: 0, warnings: [] }; } }]);
+    await imp.refresh(true, now);
+    await imp.refresh(true, now);
+    const f = await imp.getFeed(now);
     expect(f.events.map((e) => e.id)).toEqual(["h1"]);
     expect(f.sources[0]!.stale).toBe(true);
   });
 
-  it("rechecks expiry from cache; cancelled removed but reported", async () => {
-    const imp = createImporter([ok("carrboro", [ev("soon", "2026-10-10T17:00:00Z", "2026-10-10T18:00:00Z"), ev("x", "2026-10-12T17:00:00Z", null, "cancelled")])]);
+  it("rechecks expiry at read time; cancelled removed but reported", async () => {
+    const imp = mk([ok("carrboro", [ev("soon", "2026-10-10T17:00:00Z", "2026-10-10T18:00:00Z"), ev("x", "2026-10-12T17:00:00Z", null, "cancelled")])]);
+    await imp.refresh(true, now);
     expect((await imp.getFeed(now)).events.map((e) => e.id)).toEqual(["soon"]);
     const later = await imp.getFeed(new Date("2026-10-10T19:00:00Z"));
     expect(later.events).toEqual([]);
