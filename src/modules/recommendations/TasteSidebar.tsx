@@ -5,7 +5,7 @@ import { useUserState } from "./UserStateProvider";
 import { keyLabel } from "./ranking";
 import { cn } from "@/lib/utils";
 
-/** Small personal status pill on Discover; expands to show what PulseMatch has learned. Scores live in /lab. */
+/** Small personal status pill on Discover; expands to show what UNCover has learned. Scores live in /lab. */
 export function TasteSidebar({ className }: { className?: string }) {
   const { state, reset } = useUserState();
   const [open, setOpen] = useState(false);

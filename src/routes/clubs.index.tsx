@@ -13,9 +13,9 @@ const clubsQuery = queryOptions({ queryKey: ["clubs"], queryFn: () => listClubs(
 export const Route = createFileRoute("/clubs/")({
   head: () => ({
     meta: [
-      { title: "Clubs — PulseMatch" },
+      { title: "Clubs — UNCover" },
       { name: "description", content: "Star your UNC clubs and chat with members in one place instead of scattered group chats." },
-      { property: "og:title", content: "Clubs — PulseMatch" },
+      { property: "og:title", content: "Clubs — UNCover" },
       { property: "og:description", content: "One home for every club chat at UNC." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

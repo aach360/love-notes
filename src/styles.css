@@ -438,3 +438,34 @@
 @media (prefers-reduced-motion: reduce) {
   .aero-cloud { animation: none; }
 }
+
+/* ---------- UNCover brand + map ---------- */
+:root {
+  --logo-top: oklch(0.74 0.08 240);
+  --logo-bottom: oklch(0.47 0.11 245);
+  --logo-fold-a: oklch(0.93 0.05 165);
+  --logo-fold-b: oklch(0.7 0.12 165);
+  --map-pin: oklch(0.52 0.115 240);
+  --map-pin-sel: oklch(0.62 0.13 165);
+}
+.view-switch { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--dock-surface, oklch(1 0 0 / .7)); box-shadow: var(--control-shadow); backdrop-filter: blur(14px); }
+.view-switch-btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: 0 1rem; border-radius: 999px; font-size: .875rem; font-weight: 600; color: color-mix(in oklab, var(--navy) 65%, transparent); transition: background .18s, color .18s; }
+.view-switch-btn.is-on { background: var(--primary); color: var(--primary-foreground); box-shadow: inset 0 1px 0 oklch(1 0 0 / .35); }
+.view-switch-btn:focus-visible, .map-chip:focus-visible, .map-icon-btn:focus-visible { outline: 3px solid color-mix(in oklab, var(--ring) 60%, transparent); outline-offset: 2px; }
+.map-shell { border-radius: 1.5rem; background: oklch(1 0 0 / .78); border: 1px solid oklch(1 0 0 / .8); box-shadow: 0 18px 40px -24px color-mix(in oklab, var(--navy) 45%, transparent); backdrop-filter: blur(18px); }
+.map-chip { display: inline-flex; align-items: center; gap: .35rem; min-height: 44px; padding: 0 .95rem; border-radius: 999px; font-size: .85rem; font-weight: 600; color: var(--navy); background: oklch(1 0 0 / .78); border: 1px solid oklch(1 0 0 / .9); box-shadow: var(--control-shadow); transition: transform .12s, background .18s; }
+.map-chip:active { transform: scale(.97); }
+.map-chip.is-on { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
+.map-row { display: flex; gap: .6rem; padding: .7rem; border-radius: 1rem; background: oklch(1 0 0 / .7); border: 1px solid transparent; transition: border-color .18s, background .18s; }
+.map-row.is-selected { border-color: color-mix(in oklab, var(--primary) 55%, transparent); background: oklch(0.97 0.02 235); }
+.map-icon-btn { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 999px; color: var(--navy); background: oklch(1 0 0 / .85); box-shadow: var(--control-shadow); }
+.map-pin { width: 34px; height: 34px; border-radius: 999px 999px 999px 4px; transform: rotate(-45deg); display: grid; place-items: center; background: linear-gradient(160deg, color-mix(in oklab, var(--map-pin) 70%, white), var(--map-pin)); border: 2px solid oklch(1 0 0 / .95); box-shadow: 0 6px 14px -6px color-mix(in oklab, var(--navy) 70%, transparent); transition: transform .18s; cursor: pointer; }
+.map-pin span { transform: rotate(45deg); color: var(--primary-foreground); font: 700 12px/1 var(--font-display); }
+.map-pin-cluster { border-radius: 999px; transform: none; width: 40px; height: 40px; background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--map-pin) 45%, white), var(--map-pin)); }
+.map-pin-cluster span { transform: none; }
+.map-pin.is-selected { background: linear-gradient(160deg, color-mix(in oklab, var(--map-pin-sel) 60%, white), var(--map-pin-sel)); transform: rotate(-45deg) scale(1.18); }
+.map-me { fill: var(--primary); fill-opacity: .9; stroke: oklch(1 0 0); stroke-width: 3; }
+.map-sheet { position: fixed; inset-inline: .75rem; bottom: calc(env(safe-area-inset-bottom) + 5rem); z-index: 35; border-radius: 1.5rem; background: oklch(1 0 0 / .92); backdrop-filter: blur(18px); box-shadow: 0 -10px 30px -18px color-mix(in oklab, var(--navy) 50%, transparent); max-height: 3.4rem; overflow: hidden; transition: max-height .28s cubic-bezier(.2,.8,.2,1); }
+.map-sheet.is-open { max-height: 62dvh; }
+.leaflet-container { font-family: inherit; background: oklch(0.95 0.015 230); }
+@media (prefers-reduced-motion: reduce) { .map-sheet, .map-pin, .view-switch-btn { transition: none; } }

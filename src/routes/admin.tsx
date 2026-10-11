@@ -8,10 +8,10 @@ import { AeroButton, PageTitle, Panel } from "@/components/aero";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Team import — PulseMatch" },
+      { title: "Team import — UNCover" },
       { name: "description", content: "Team-only event import controls." },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Team import — PulseMatch" },
+      { property: "og:title", content: "Team import — UNCover" },
       { property: "og:description", content: "Team-only event import controls." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
