@@ -5,7 +5,7 @@ import { useUserState } from "@/modules/recommendations/UserStateProvider";
 import { EventDetail } from "@/modules/discovery/EventDetail";
 import { EventImage } from "@/modules/discovery/EventImage";
 import { StatePanel } from "@/components/StatePanel";
-import { AeroButton, PageTitle, Panel } from "@/components/aero";
+import { AeroButton, PageTitle } from "@/components/aero";
 import { formatEventDate, hasEnded } from "@/shared/time";
 import { useCancelledIds } from "@/modules/discovery/useCancelledIds";
 import type { PulseEvent } from "@/shared/types";
@@ -13,9 +13,13 @@ import type { PulseEvent } from "@/shared/types";
 export const Route = createFileRoute("/saved")({
   head: () => ({
     meta: [
-      { title: "Saved events — UNCover" },
-      { name: "description", content: "Events you've saved on UNCover. Add them to your plan or open the original page to register." },
-      { property: "og:title", content: "Saved events — UNCover" },
+      { title: "Saved events — UNCitall" },
+      {
+        name: "description",
+        content:
+          "Events you've saved on UNCitall. Add them to your plan or open the original page to register.",
+      },
+      { property: "og:title", content: "Saved events — UNCitall" },
       { property: "og:description", content: "Your saved UNC campus events." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -33,38 +37,75 @@ function Saved() {
 
   return (
     <div>
-      <PageTitle title="Saved" subtitle="Saving doesn't register you — use the event page to RSVP." />
+      <PageTitle
+        title="Saved"
+        subtitle="Your shortlist. Add an event to your calendar when you’re ready."
+      />
       {!hydrated ? null : saved.length === 0 ? (
         <StatePanel tone="grass" icon={<Heart className="size-6" />} title="No saved events yet">
           <p>Swipe right on events you like.</p>
-          <Link to="/" className="aero-btn aero-aqua mt-4 inline-flex rounded-full px-4 py-2 text-sm font-bold">Discover events</Link>
+          <Link
+            to="/"
+            className="aero-btn aero-aqua mt-4 inline-flex rounded-full px-4 py-2 text-sm font-bold"
+          >
+            Discover events
+          </Link>
         </StatePanel>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="aero-panel divide-y divide-border rounded-3xl overflow-hidden">
           {saved.map(({ event: e }) => (
             <li key={e.id}>
-              <Panel className="flex gap-3 p-2">
-                <button onClick={() => setDetail(e)} className="relative size-24 shrink-0 overflow-hidden rounded-2xl" aria-label={`Details for ${e.title}`}>
+              <div className="flex items-center gap-3 p-3 sm:p-4">
+                <button
+                  onClick={() => setDetail(e)}
+                  className="relative size-14 sm:size-16 shrink-0 overflow-hidden rounded-2xl"
+                  aria-label={`Details for ${e.title}`}
+                >
                   <EventImage event={e} />
                   <span className="gloss absolute inset-0" />
                 </button>
-                <div className="aero-solid flex min-w-0 flex-1 flex-col rounded-2xl p-3">
-                  <button onClick={() => setDetail(e)} className="text-left">
+                <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <button onClick={() => setDetail(e)} className="min-w-0 flex-1 text-left">
                     <h3 className="line-clamp-2 text-sm font-bold text-navy">{e.title}</h3>
-                    <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{formatEventDate(e)}</p>
-                    {cancelled.has(e.id) && <p className="text-xs font-bold text-destructive">Cancelled by the organizer</p>}
-                    {hasEnded(e) && <p className="text-xs font-bold text-destructive">This event has ended</p>}
+                    <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
+                      {formatEventDate(e)}
+                    </p>
+                    {cancelled.has(e.id) && (
+                      <p className="text-xs font-bold text-destructive">
+                        Cancelled by the organizer
+                      </p>
+                    )}
+                    {hasEnded(e) && (
+                      <p className="text-xs font-bold text-destructive">This event has ended</p>
+                    )}
                   </button>
-                  <div className="mt-auto flex gap-2 pt-2">
-                    <AeroButton tone={inPlan(e.id) ? "grass" : "aqua"} className="px-3 py-1 text-xs" onClick={() => togglePlan(e)}>
-                      {inPlan(e.id) ? <><CalendarCheck className="size-4" /> In plan</> : <><CalendarPlus className="size-4" /> Add to plan</>}
+                  <div className="flex shrink-0 items-center gap-2">
+                    <AeroButton
+                      tone={inPlan(e.id) ? "grass" : "aqua"}
+                      className="px-3 py-1 text-xs"
+                      onClick={() => togglePlan(e)}
+                    >
+                      {inPlan(e.id) ? (
+                        <>
+                          <CalendarCheck className="size-4" /> Added
+                        </>
+                      ) : (
+                        <>
+                          <CalendarPlus className="size-4" /> Add to calendar
+                        </>
+                      )}
                     </AeroButton>
-                    <AeroButton tone="pearl" className="px-3 py-1 text-xs" aria-label={`Remove ${e.title}`} onClick={() => removeSaved(e.id)}>
+                    <AeroButton
+                      tone="pearl"
+                      className="px-3 py-1 text-xs"
+                      aria-label={`Remove ${e.title}`}
+                      onClick={() => removeSaved(e.id)}
+                    >
                       <Trash2 className="size-4" />
                     </AeroButton>
                   </div>
                 </div>
-              </Panel>
+              </div>
             </li>
           ))}
         </ul>

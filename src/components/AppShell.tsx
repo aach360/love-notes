@@ -8,17 +8,17 @@ import { Logo as Brand } from "@/components/Logo";
 const NAV = [
   { to: "/", label: "Discover", icon: Sparkles },
   { to: "/saved", label: "Saved", icon: Heart },
-  { to: "/plan", label: "Plan", icon: CalendarDays },
+  { to: "/plan", label: "Calendar", icon: CalendarDays },
   { to: "/clubs", label: "Clubs", icon: Users },
 ] as const;
 
 const BUBBLES = [
-  { l: "5%", s: 54, d: "38s", delay: "-8s", drift: "38px" },
-  { l: "17%", s: 24, d: "30s", delay: "-20s", drift: "-28px" },
-  { l: "35%", s: 16, d: "42s", delay: "-12s", drift: "20px" },
-  { l: "70%", s: 32, d: "34s", delay: "-26s", drift: "-36px" },
-  { l: "86%", s: 72, d: "48s", delay: "-18s", drift: "-42px" },
-  { l: "95%", s: 20, d: "32s", delay: "-4s", drift: "-16px" },
+  { l: "-8%", t: "14%", s: 320, d: "24s", delay: "-8s", drift: "28px" },
+  { l: "12%", t: "66%", s: 100, d: "19s", delay: "-12s", drift: "-18px" },
+  { l: "25%", t: "9%", s: 46, d: "23s", delay: "-6s", drift: "16px" },
+  { l: "73%", t: "12%", s: 250, d: "28s", delay: "-18s", drift: "-24px" },
+  { l: "88%", t: "58%", s: 140, d: "22s", delay: "-8s", drift: "-22px" },
+  { l: "61%", t: "78%", s: 58, d: "20s", delay: "-4s", drift: "16px" },
 ];
 
 const CLOUDS = [
@@ -57,6 +57,7 @@ function Ambient() {
           className="bubble"
           style={{
             left: b.l,
+            top: b.t,
             width: b.s,
             height: b.s,
             ["--dur" as string]: b.d,
@@ -85,7 +86,11 @@ function AccountButton() {
 
 function Logo() {
   return (
-    <Link to="/" aria-label="UNCover home" className="flex min-h-11 items-center rounded-full pr-2">
+    <Link
+      to="/"
+      aria-label="UNCitall home"
+      className="flex min-h-11 items-center rounded-full pr-2"
+    >
       <Brand />
     </Link>
   );

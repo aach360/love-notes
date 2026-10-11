@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { MessageCircle, Plus, Star, Users } from "lucide-react";
+import { MessageCircle, Plus, Star, Users, Search, ChevronRight } from "lucide-react";
 import { AeroButton, PageTitle, Panel } from "@/components/aero";
 import { StatePanel } from "@/components/StatePanel";
 import { createClub, joinClub, listClubs } from "@/modules/clubs/clubs.functions";
@@ -13,13 +13,13 @@ const clubsQuery = queryOptions({ queryKey: ["clubs"], queryFn: () => listClubs(
 export const Route = createFileRoute("/clubs/")({
   head: () => ({
     meta: [
-      { title: "Clubs — UNCover" },
+      { title: "Clubs — UNCitall" },
       {
         name: "description",
         content:
           "Star your UNC clubs and chat with members in one place instead of scattered group chats.",
       },
-      { property: "og:title", content: "Clubs — UNCover" },
+      { property: "og:title", content: "Clubs — UNCitall" },
       { property: "og:description", content: "One home for every club chat at UNC." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -35,6 +35,8 @@ function ClubsPage() {
   const create = useServerFn(createClub);
   const join = useServerFn(joinClub);
   const [mode, setMode] = useState<"none" | "join" | "create">("none");
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<"mine" | "all">("mine");
   const [code, setCode] = useState("");
   const [clubName, setClubName] = useState("");
   const [desc, setDesc] = useState("");
@@ -81,140 +83,249 @@ function ClubsPage() {
     }
   }
 
+  const visible = list.filter(
+    (club) =>
+      (tab === "all" || memberOf.has(club.id)) &&
+      `${club.name} ${club.description ?? ""}`.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
-    <div>
-      <PageTitle
-        title="Clubs"
-        subtitle="Star the clubs you follow. Members chat here instead of scattered group chats."
-      />
-
-      <Panel className="mb-4 p-4">
-        <div className="aero-solid rounded-2xl p-3">
-          <label className="text-xs font-bold text-navy" htmlFor="dn">
-            Your display name
-          </label>
-          <input
-            id="dn"
-            value={name}
-            maxLength={40}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="e.g. Jordan (no sign-up needed)"
-            className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
-          />
-          <div className="mt-3 flex flex-wrap gap-2">
-            <AeroButton
-              tone={mode === "join" ? "grass" : "aqua"}
-              className="px-4 py-1.5 text-sm"
-              onClick={() => setMode(mode === "join" ? "none" : "join")}
+    <div className="space-y-4">
+      <PageTitle title="Clubs" subtitle="Find your people. Jump into a conversation." />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="aero-control inline-flex rounded-full p-1"
+          role="group"
+          aria-label="Club lists"
+        >
+          {(["mine", "all"] as const).map((value) => (
+            <button
+              key={value}
+              onClick={() => setTab(value)}
+              aria-pressed={tab === value}
+              className={`min-h-11 rounded-full px-4 text-sm font-bold ${tab === value ? "aero-btn aero-aqua" : "text-navy"}`}
             >
-              <Users className="size-4" /> Join with code
-            </AeroButton>
-            <AeroButton
-              tone={mode === "create" ? "grass" : "pearl"}
-              className="px-4 py-1.5 text-sm"
-              onClick={() => setMode(mode === "create" ? "none" : "create")}
-            >
-              <Plus className="size-4" /> Start a club chat
-            </AeroButton>
-          </div>
-          {mode === "join" && (
-            <div className="mt-3 flex gap-2">
-              <input
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                maxLength={6}
-                placeholder="6-letter code"
-                className="flex-1 rounded-xl border border-border bg-background px-3 py-2 font-mono text-sm uppercase"
-              />
-              <AeroButton
-                tone="grass"
-                disabled={busy || code.length !== 6}
-                className="px-4 py-1.5 text-sm"
-                onClick={submit}
-              >
-                Join
-              </AeroButton>
-            </div>
-          )}
-          {mode === "create" && (
-            <div className="mt-3 grid gap-2">
-              <input
-                value={clubName}
-                onChange={(e) => setClubName(e.target.value)}
-                maxLength={80}
-                placeholder="Club name (match its Heel Life or calendar organizer name to see its events)"
-                className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
-              />
-              <textarea
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                maxLength={500}
-                rows={2}
-                placeholder="What's the club about? (optional)"
-                className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
-              />
-              <AeroButton
-                tone="grass"
-                disabled={busy || clubName.trim().length < 2}
-                className="justify-self-start px-4 py-1.5 text-sm"
-                onClick={submit}
-              >
-                Create & get join code
-              </AeroButton>
-            </div>
-          )}
-          {err && <p className="mt-2 text-xs font-bold text-destructive">{err}</p>}
+              {value === "mine" ? "My clubs" : "Browse clubs"}
+            </button>
+          ))}
         </div>
-      </Panel>
+        <div className="flex gap-2">
+          <AeroButton
+            onClick={() => {
+              setMode(mode === "join" ? "none" : "join");
+              setErr(null);
+            }}
+          >
+            <Users className="size-4" /> Join a club
+          </AeroButton>
+          <AeroButton
+            tone="pearl"
+            onClick={() => {
+              setMode(mode === "create" ? "none" : "create");
+              setErr(null);
+            }}
+          >
+            <Plus className="size-4" /> Create club
+          </AeroButton>
+        </div>
+      </div>
 
-      {clubs.isLoading ? null : list.length === 0 ? (
-        <StatePanel tone="aqua" icon={<Users className="size-6" />} title="No clubs yet">
-          <p>Be the first — start a chat for your club and share the join code.</p>
+      {mode !== "none" && (
+        <Panel className="p-4 sm:p-5">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submit();
+            }}
+            className="grid gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-navy">
+                {mode === "join" ? "Join with an invite code" : "Start your club"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setMode("none")}
+                className="min-h-11 px-3 text-sm text-muted-foreground"
+              >
+                Cancel
+              </button>
+            </div>
+            <label className="grid gap-1 text-sm font-semibold text-navy">
+              Your name in chat
+              <input
+                value={name}
+                required
+                maxLength={40}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="e.g. Jordan"
+                className="rounded-xl border border-border bg-background px-3 py-3"
+              />
+            </label>
+            {mode === "join" ? (
+              <label className="grid gap-1 text-sm font-semibold text-navy">
+                Invite code
+                <input
+                  value={code}
+                  required
+                  onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+                  maxLength={6}
+                  placeholder="ABC123"
+                  className="rounded-xl border border-border bg-background px-3 py-3 font-mono uppercase"
+                />
+                <span className="text-xs font-normal text-muted-foreground">
+                  Ask a club member for their six-character code.
+                </span>
+              </label>
+            ) : (
+              <>
+                <label className="grid gap-1 text-sm font-semibold text-navy">
+                  Club name
+                  <input
+                    value={clubName}
+                    required
+                    minLength={2}
+                    maxLength={80}
+                    onChange={(e) => setClubName(e.target.value)}
+                    placeholder="Your club’s name"
+                    className="rounded-xl border border-border bg-background px-3 py-3"
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-semibold text-navy">
+                  Description (optional)
+                  <textarea
+                    value={desc}
+                    maxLength={500}
+                    rows={2}
+                    onChange={(e) => setDesc(e.target.value)}
+                    placeholder="What brings your club together?"
+                    className="rounded-xl border border-border bg-background px-3 py-3"
+                  />
+                </label>
+              </>
+            )}
+            {err && (
+              <p role="alert" className="text-sm text-destructive">
+                {err}
+              </p>
+            )}
+            <AeroButton
+              type="submit"
+              disabled={
+                busy ||
+                !name.trim() ||
+                (mode === "join" ? code.length !== 6 : clubName.trim().length < 2)
+              }
+              className="justify-self-start"
+            >
+              {busy ? "Please wait…" : mode === "join" ? "Join & open chat" : "Create & open chat"}
+            </AeroButton>
+          </form>
+        </Panel>
+      )}
+
+      <label className="aero-control flex items-center gap-2 rounded-2xl px-4 text-muted-foreground">
+        <Search className="size-4" />
+        <input
+          aria-label="Search clubs"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={tab === "mine" ? "Search your clubs" : "Search all clubs"}
+          className="min-h-12 w-full bg-transparent text-sm text-navy outline-none"
+        />
+      </label>
+      {clubs.isLoading ? (
+        <p role="status" className="text-sm text-navy">
+          Loading clubs…
+        </p>
+      ) : clubs.isError ? (
+        <StatePanel icon={<Users className="size-6" />} title="Could not load clubs">
+          <button onClick={() => void clubs.refetch()} className="underline">
+            Try again
+          </button>
+        </StatePanel>
+      ) : visible.length === 0 ? (
+        <StatePanel
+          tone="aqua"
+          icon={<Users className="size-6" />}
+          title={
+            search
+              ? "No matching clubs"
+              : tab === "mine"
+                ? "Your clubs will appear here"
+                : "No clubs yet"
+          }
+        >
+          <p>
+            {search
+              ? "Try another name or clear your search."
+              : "Join with an invite code, or create a club and invite your friends."}
+          </p>
+          {tab === "mine" && !search && (
+            <button
+              onClick={() => setTab("all")}
+              className="mt-3 min-h-11 font-bold text-primary underline"
+            >
+              Browse clubs
+            </button>
+          )}
         </StatePanel>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {list.map((c) => {
+        <ul className="aero-panel divide-y divide-border overflow-hidden rounded-3xl">
+          {visible.map((c) => {
             const starred = !!device?.starred.includes(c.id);
             const member = memberOf.has(c.id);
             return (
-              <li key={c.id}>
-                <Panel className="p-2">
-                  <div className="aero-solid flex items-start gap-3 rounded-2xl p-3">
-                    <button
-                      onClick={() => toggleStar(c.id)}
-                      aria-label={starred ? `Unstar ${c.name}` : `Star ${c.name}`}
-                      aria-pressed={starred}
-                      className={`aero-btn ${starred ? "aero-grass" : "aero-pearl"} inline-flex size-9 shrink-0 items-center justify-center rounded-full`}
+              <li key={c.id} className="flex items-center gap-3 p-4">
+                <span className="aero-control flex size-12 shrink-0 items-center justify-center rounded-2xl text-navy">
+                  <MessageCircle className="size-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  {member ? (
+                    <Link
+                      to="/clubs/$clubId"
+                      params={{ clubId: c.id }}
+                      className="font-bold text-navy hover:underline"
                     >
-                      <Star className={`size-4 ${starred ? "fill-current" : ""}`} />
-                    </button>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-navy">{c.name}</h3>
-                      {c.description && (
-                        <p className="line-clamp-2 text-xs text-muted-foreground">
-                          {c.description}
-                        </p>
-                      )}
-                      <p className="mt-1 text-xs font-semibold text-navy/70">
-                        {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
-                        {member && (
-                          <span className="ml-2 rounded-full bg-grass px-2 py-0.5 text-[10px] text-grass-foreground">
-                            You're a member
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    {member && (
-                      <Link
-                        to="/clubs/$clubId"
-                        params={{ clubId: c.id }}
-                        className="aero-btn aero-aqua inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold"
-                      >
-                        <MessageCircle className="size-4" /> Chat
-                      </Link>
-                    )}
-                  </div>
-                </Panel>
+                      {c.name}
+                    </Link>
+                  ) : (
+                    <h3 className="font-bold text-navy">{c.name}</h3>
+                  )}
+                  <p className="line-clamp-1 text-xs text-muted-foreground">
+                    {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
+                    {c.description ? ` · ${c.description}` : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={() => toggleStar(c.id)}
+                  aria-label={starred ? `Unstar ${c.name}` : `Star ${c.name}`}
+                  aria-pressed={starred}
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full text-navy hover:bg-card"
+                >
+                  <Star className={`size-4 ${starred ? "fill-current" : ""}`} />
+                </button>
+                {member ? (
+                  <Link
+                    to="/clubs/$clubId"
+                    params={{ clubId: c.id }}
+                    aria-label={`Open ${c.name} chat`}
+                    className="aero-btn aero-aqua inline-flex min-h-11 items-center gap-1 rounded-full px-3 text-sm font-bold"
+                  >
+                    Chat <ChevronRight className="size-4" />
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setMode("join");
+                      setErr(null);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="aero-control min-h-11 rounded-full px-3 text-sm font-bold text-navy"
+                  >
+                    Join
+                  </button>
+                )}
               </li>
             );
           })}
