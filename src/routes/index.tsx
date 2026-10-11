@@ -13,13 +13,17 @@ import { StatePanel } from "@/components/StatePanel";
 import { AeroButton } from "@/components/aero";
 import { TasteSidebar } from "@/modules/recommendations/TasteSidebar";
 import type { EventFilters } from "@/shared/types";
+import { MapView } from "@/modules/map/MapView";
+import { isEligibleForDiscover, matchesDateFilter } from "@/shared/time";
+import { LayoutGrid, Map as MapIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "UNCover — Discover UNC campus events" },
+      { title: "UNCover — What's happening at UNC" },
       { name: "description", content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan." },
-      { property: "og:title", content: "UNCover — Discover UNC campus events" },
+      { property: "og:title", content: "UNCover — What's happening at UNC" },
       { property: "og:description", content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -60,13 +64,29 @@ function Discover() {
     undoLast();
   };
   const clearReturning = useCallback(() => setReturning(null), []);
+  const [view, setView] = useState<"cards" | "map">("cards");
+  const mapEvents = useMemo(
+    () => feed.events.filter((e) => isEligibleForDiscover(e) && matchesDateFilter(e, filters.date) && (!filters.category || e.categories.includes(filters.category))),
+    [feed.events, filters.date, filters.category],
+  );
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end"><TasteSidebar /></div>
+      <div className="flex items-center justify-between gap-2">
+        <div role="tablist" aria-label="Discover view" className="view-switch">
+          {([["cards", "Cards", LayoutGrid], ["map", "Map", MapIcon]] as const).map(([v, label, Icon]) => (
+            <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)} className={cn("view-switch-btn", view === v && "is-on")}>
+              <Icon className="size-4" aria-hidden /> {label}
+            </button>
+          ))}
+        </div>
+        <TasteSidebar />
+      </div>
       <FilterSidebar value={filters} onChange={setFilters} onClear={() => setFilters(DEFAULT_FILTERS)} categories={categories} />
 
-      {!hydrated ? (
+      {view === "map" ? (
+        <MapView events={mapEvents} date={filters.date} onDate={(date) => setFilters((f) => ({ ...f, date }))} />
+      ) : !hydrated ? (
         <StatePanel icon={<Waves className="size-6 animate-pulse" />} title="Loading events…" />
       ) : feed.events.length === 0 ? (
         <StatePanel icon={<Waves className="size-6" />} title="No upcoming events">{feed.origin === "unavailable" ? "Campus calendars haven't been imported yet — they refresh automatically twice a week." : "Check back soon."}</StatePanel>
