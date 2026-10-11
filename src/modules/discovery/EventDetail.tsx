@@ -6,20 +6,44 @@ import { topicLabel } from "@/shared/taxonomy";
 import { Chip } from "@/components/aero";
 import { EventImage } from "./EventImage";
 import { sourceLabel } from "./sourceLabel";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 export function EventDetail({ event, onClose, actions, sheet = false, restoreFocus }: { event: PulseEvent | null; onClose: () => void; actions?: ReactNode; sheet?: boolean; restoreFocus?: () => void }) {
+  // Swipe down (from the top of the scroll) closes the sheet; otherwise it scrolls normally.
+  const drag = useRef<{ y: number; x: number; dy: number; active: boolean } | null>(null);
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const t = e.touches[0];
+    if (!sheet || !t) return;
+    drag.current = { y: t.clientY, x: t.clientX, dy: 0, active: e.currentTarget.scrollTop <= 0 };
+  };
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const d = drag.current, t = e.touches[0];
+    if (!d || !t || !d.active) return;
+    const dy = t.clientY - d.y, dx = Math.abs(t.clientX - d.x);
+    if (dy <= 0 || dx > dy) { d.dy = 0; e.currentTarget.style.transform = ""; return; }
+    d.dy = dy;
+    e.currentTarget.setAttribute("data-dragging", "");
+    e.currentTarget.style.transform = `translateY(${dy}px)`;
+  };
+  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    drag.current = null;
+    e.currentTarget.removeAttribute("data-dragging");
+    if (d && d.dy > 90) { onClose(); return; }
+    e.currentTarget.style.transform = "";
+  };
   return (
     <Dialog open={!!event} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent onCloseAutoFocus={restoreFocus ? (e) => { e.preventDefault(); restoreFocus(); } : undefined} className={`${sheet ? "event-detail-sheet " : ""}aero-panel max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[2rem] border-0 p-0 sm:max-w-lg`}>
+      <DialogContent onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} onCloseAutoFocus={restoreFocus ? (e) => { e.preventDefault(); restoreFocus(); } : undefined} className={`${sheet ? "event-detail-sheet " : ""}aero-panel max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[2rem] border-0 p-0 sm:max-w-lg`}>
         {event && (
           <>
+            {sheet && <div className="sheet-grip" aria-hidden />}
             <div className="relative aspect-video overflow-hidden rounded-t-[2rem]">
               <EventImage key={`${event.id}:${event.imageUrl}`} event={event} eager />
               <div className="gloss absolute inset-0" />
             </div>
-            <div className="aero-solid space-y-3 p-5">
+            <div className="aero-solid mx-auto w-full space-y-3 p-5 text-left sm:p-6">
               <DialogTitle className="text-2xl font-bold text-navy">{event.title}</DialogTitle>
               <DialogDescription asChild>
                 <ul className="space-y-1 text-sm font-semibold text-foreground/80">
@@ -52,7 +76,7 @@ export function EventDetail({ event, onClose, actions, sheet = false, restoreFoc
               )}
               {event.description && <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85">{event.description}</p>}
               <p className="text-xs text-muted-foreground">Saving an event doesn't register you. Register or RSVP on the original event page.</p>
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap justify-center gap-2 pt-1">
                 {actions}
                 {event.sourceUrl ? (
                   <Button asChild variant="dock" size="touch">

@@ -360,11 +360,14 @@
 .aero-control-save { background: var(--dock-save); border-color: color-mix(in oklch, var(--like) 45%, var(--border)); }
 .aero-control-quiet { background: transparent; border-color: transparent; box-shadow: none; }
 .swipe-stamp { background: var(--dock-surface); border: 2px solid currentColor; border-radius: 8px; padding: .4rem .8rem; font-size: 1.5rem; font-weight: 900; }
-.event-detail-sheet { top: auto; bottom: 0; left: 50%; width: min(100%, 32rem); max-height: 92dvh; transform: translateX(-50%); border-bottom-left-radius: 0; border-bottom-right-radius: 0; gap: 0; touch-action: pan-y; }
+.event-detail-sheet { top: auto; bottom: 0; left: 0; right: 0; margin-inline: auto; translate: none; transform: none; width: min(100%, 34rem); max-width: 34rem; max-height: 92dvh; border-bottom-left-radius: 0; border-bottom-right-radius: 0; gap: 0; touch-action: pan-y; transition: transform 200ms cubic-bezier(.22,1,.36,1); }
+.event-detail-sheet[data-dragging] { transition: none; }
 .event-detail-sheet[data-state=open] { animation: detail-rise 260ms cubic-bezier(.22,1,.36,1); }
 .event-detail-sheet[data-state=closed] { animation: detail-lower 180ms ease-in; }
-@keyframes detail-rise { from { transform: translate(-50%, 12%); opacity: .5; } to { transform: translate(-50%, 0); opacity: 1; } }
-@keyframes detail-lower { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, 12%); opacity: 0; } }
+.sheet-grip { position: absolute; left: 50%; top: .5rem; z-index: 10; width: 2.75rem; height: .3rem; translate: -50% 0; border-radius: 999px; background: color-mix(in oklab, var(--foreground) 30%, transparent); }
+@keyframes detail-rise { from { transform: translateY(14%); opacity: .5; } to { transform: translateY(0); opacity: 1; } }
+@keyframes detail-lower { from { opacity: 1; } to { transform: translateY(18%); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .event-detail-sheet, .event-detail-sheet[data-state] { animation: none; transition: none; } }
 @keyframes dock-ripple {
   from { transform: translate(-50%, -50%) scale(0.4); opacity: 0.55; }
   to { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
