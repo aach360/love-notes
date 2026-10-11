@@ -132,7 +132,7 @@ export function SwipeDeck({ ranked, onSwipe, onUndo, canUndo, returning, onRetur
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative h-[min(calc(100dvh_-_320px),620px)] min-h-[360px] md:h-[min(calc(100dvh_-_220px),620px)] w-full max-w-md">
+      <div className="relative h-[min(calc(100dvh_-_390px),620px)] min-h-[360px] md:h-[min(calc(100dvh_-_220px),620px)] w-full max-w-md">
         <div aria-hidden className="backplate absolute inset-x-6 bottom-[-14px] top-6 rounded-[2rem]" />
         <div aria-hidden className="backplate absolute inset-x-3 bottom-[-7px] top-3 rounded-[2rem]" />
         <div key={active.event.id} ref={cardRef} tabIndex={-1} role="group" aria-label={active.event.title} data-phase={phase} data-event-id={active.event.id}
