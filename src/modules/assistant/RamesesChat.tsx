@@ -7,7 +7,8 @@ import { useUserState } from "@/modules/recommendations/UserStateProvider";
 import { formatEventDate } from "@/shared/time";
 import { cn } from "@/lib/utils";
 import { useAssistantChat } from "./AssistantChatProvider";
-import rameses from "@/assets/tarheel-foot.png";
+import ramesesAsset from "@/assets/rameses.png.asset.json";
+const rameses = ramesesAsset.url;
 
 const SUGGESTIONS = ["What's happening this weekend?", "Find me something free", "Any events with free food today?"];
 
