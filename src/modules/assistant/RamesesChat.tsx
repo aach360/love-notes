@@ -267,7 +267,7 @@ export function RamesesChat() {
           if (e.key === "Escape" && open) closePanel();
         }}
         className={cn(
-          "rameses-chat-peek h-24 w-24 overflow-hidden rounded-t-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-carolina",
+          "rameses-chat-peek h-36 w-36 overflow-hidden rounded-t-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-carolina max-lg:h-32 max-lg:w-32 max-sm:h-28 max-sm:w-28",
           open && "pointer-events-none opacity-0",
         )}
       >
@@ -276,7 +276,7 @@ export function RamesesChat() {
           alt=""
           width={640}
           height={544}
-          className={cn("rameses-img h-24 w-24 -scale-x-100 object-contain object-top drop-shadow-lg", hovered || open ? "rameses-up" : "rameses-down")}
+          className={cn("rameses-img h-full w-full -scale-x-100 object-contain object-top drop-shadow-lg", hovered || open ? "rameses-up" : "rameses-down")}
         />
       </button>
     </div>
