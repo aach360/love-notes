@@ -35,7 +35,7 @@ export function EventDetail({ event, onClose, actions, sheet = false, restoreFoc
   };
   return (
     <Dialog open={!!event} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} onCloseAutoFocus={restoreFocus ? (e) => { e.preventDefault(); restoreFocus(); } : undefined} className={`${sheet ? "event-detail-sheet " : ""}aero-panel max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[2rem] border-0 p-0 sm:max-w-lg`}>
+      <DialogContent onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} onCloseAutoFocus={restoreFocus ? (e) => { e.preventDefault(); restoreFocus(); } : undefined} className={`${sheet ? "event-detail-sheet inset-x-0 bottom-0 top-auto mx-auto translate-x-0 translate-y-0 sm:max-w-[34rem] " : ""}aero-panel max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[2rem] border-0 p-0 sm:max-w-lg`}>
         {event && (
           <>
             {sheet && <div className="sheet-grip" aria-hidden />}
