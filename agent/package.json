@@ -2,6 +2,16 @@
   "name": "pulsematch-imessage-agent",
   "private": true,
   "type": "module",
-  "scripts": { "start": "bun run index.ts" },
-  "dependencies": { "spectrum-ts": "latest" }
+  "scripts": {
+    "start": "bun run index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "spectrum-ts": "12.10.1"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.0",
+    "typescript": "5.9.3"
+  }
 }

@@ -35,3 +35,6 @@ agent/.env.*
 *.njsproj
 *.sln
 *.sw?
+
+# Photon durable local journal (contains message content)
+agent/.state/

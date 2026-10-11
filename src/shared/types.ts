@@ -219,3 +219,44 @@ export interface ClubMessage {
   /** True when this device wrote it. */
   mine: boolean;
 }
+
+/* ---------------- Photon messaging ---------------- */
+export interface PhotonContact {
+  id: string; project_id: string; sender: string; space_id: string; line_address: string;
+  user_id: string | null; pending_user_id: string | null; pending_until: string | null;
+  reminders_enabled: boolean; lead_minutes: number; suppressed: boolean; created_at: string; last_inbound_at: string;
+}
+export interface PhotonJob {
+  id: string; dedupe_key: string; contact_id: string;
+  kind: 'reply' | 'club' | 'alert' | 'reminder'; body: string;
+  event_id: string | null; event_start: string | null; lead_minutes: number | null;
+  plan_derived: boolean; state: 'queued' | 'leased' | 'sending' | 'sent' | 'unknown' | 'cancelled' | 'failed';
+  created_at: string; expires_at: string; lease_token: string | null; lease_until: string | null;
+  provider_message_id: string | null; result_detail: string | null;
+}
+export interface PhotonReminder { contact_id: string; event_id: string; lead_minutes: number; active: boolean }
+export interface PhotonConnection {
+  status: 'unconfigured' | 'offline' | 'online' | 'unavailable';
+  botAddress: string | null;
+  link: { id: string; sender: string; pending: boolean; remindersEnabled: boolean; leadMinutes: number; suppressed: boolean } | null;
+  unknownDeliveries: number;
+}
+export interface PhotonInbound {
+  projectId: string; messageId: string; sender: string; spaceId: string; lineAddress: string; text: string;
+}
+export interface PhotonDelivery {
+  id: string; lease: string; spaceId: string; lineAddress: string; body: string;
+}
+export type PhotonCommand =
+  | { command: 'link'; code: string }
+  | { command: 'remind'; eventId: string; leadMinutes: number }
+  | { command: 'cancel'; eventId: string }
+  | { command: 'join'; clubCode: string; displayName: string }
+  | { command: 'club'; clubCode: string; clubBody: string }
+  | { command: 'ask'; question: string }
+  | { command: 'help' | 'plan' | 'stop' | 'start' | 'reminders_on' | 'reminders_off' | 'alerts_on' | 'alerts_off' };
+
+export type PhotonAccountAction =
+  | {action:'confirm';contactId:string}
+  | {action:'disconnect'}
+  | {action:'preferences';enabled:boolean;leadMinutes:15|30|60};

@@ -25,3 +25,13 @@ All models live in `src/shared/types.ts` (single source of truth). `T | null` = 
 
 ## Fixtures
 `src/fixtures/demo-events.ts#buildDemoEvents(now)` — 12 demo events (relative dates, `isDemo: true`). Demo events are only shown when live sources fail, never mixed with real ones.
+
+## Photon messaging
+
+`src/shared/types.ts` defines `PhotonContact`, `PhotonJob`, `PhotonReminder`, `PhotonInbound`, `PhotonDelivery`, `PhotonConnection`, and `PhotonAccountAction`.
+
+- `getPhotonConnection` / `createPhotonLink` / `updatePhotonConnection` are authenticated server functions. The user ID comes from Supabase auth.
+- `/api/public/agent/inbound` accepts a bearer-authenticated direct-message envelope including project, provider message, conversation, sender, and line IDs. It commits effects and a reply atomically; the agent does not send the returned HTTP response as a text.
+- `/api/public/agent/outbox?projectId=...` leases one message. POST to the same endpoint performs the final `sending` gate or records `sent`, `unknown`, or `cancelled` using the lease token. `sent` is provider acceptance, not delivery.
+- `photon_reminders` and `photon_contacts` own server-side reminder consent. The legacy local `prefs.remindersOptIn` field does not authorize real messaging.
+- Apply the Photon migration before deploying the new agent/site pair. The old cursor protocol is retired.

@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { AlertTriangle, BellRing, CalendarDays, ExternalLink, Volume2, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ExternalLink, Volume2, X } from "lucide-react";
 import { useUserState } from "@/modules/recommendations/UserStateProvider";
 import { getPlan, planNarration } from "@/modules/plan/plan";
 import { generatePlanAudio } from "@/modules/plan/audio.functions";
 import { StatePanel } from "@/components/StatePanel";
-import { AeroButton, OrbIcon, PageTitle, Panel } from "@/components/aero";
-import { Switch } from "@/components/ui/switch";
+import { AeroButton, PageTitle, Panel } from "@/components/aero";
+import { PhotonPanel } from "@/modules/assistant/messaging/PhotonPanel";
 import { sourceLabel } from "@/modules/discovery/sourceLabel";
 import { useCancelledIds } from "@/modules/discovery/useCancelledIds";
 import { formatDayHeading, formatTime, nyDateKey } from "@/shared/time";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/plan")({
 });
 
 function Plan() {
-  const { state, hydrated, togglePlan, setRemindersOptIn } = useUserState();
+  const { state, hydrated, togglePlan } = useUserState();
   const cancelled = useCancelledIds();
   const plan = useMemo(() => getPlan(state.plan), [state.plan]);
   const narration = useMemo(() => planNarration(state.plan), [state.plan]);
@@ -121,16 +121,7 @@ function Plan() {
         </div>
       )}
 
-      <Panel className="mt-6 flex items-center gap-3 p-4">
-        <OrbIcon tone="pearl"><BellRing className="size-4" /></OrbIcon>
-        <div className="flex-1">
-          <p className="text-sm font-bold text-navy">Event reminders</p>
-          <p className="text-xs text-muted-foreground">
-            {state.prefs.remindersOptIn ? "Your preference is saved. Reminder delivery isn't connected yet, so nothing will be sent." : "Off. Reminders are opt-in."}
-          </p>
-        </div>
-        <Switch checked={state.prefs.remindersOptIn} onCheckedChange={setRemindersOptIn} aria-label="Opt in to reminders" />
-      </Panel>
+      <PhotonPanel />
     </div>
   );
 }

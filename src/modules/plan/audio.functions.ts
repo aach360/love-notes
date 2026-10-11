@@ -28,9 +28,3 @@ export const generatePlanAudio = createServerFn({ method: "POST" })
     }
   });
 
-/** Reminder delivery boundary. No provider is wired yet — never fake success. */
-export interface ReminderProvider {
-  name: string;
-  schedule(input: { eventId: string; sendAt: string; to: string }): Promise<{ delivered: boolean; providerId?: string }>;
-}
-export const reminderProvider: ReminderProvider | null = null;

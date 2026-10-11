@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { useState } from "react";
-import { Bot, ExternalLink, Send, MessageCircle } from "lucide-react";
+import { Bot, ExternalLink, Send } from "lucide-react";
 import { eventsQuery } from "@/modules/ingestion/events.functions";
 import { useAssistantChat } from "@/modules/assistant/AssistantChatProvider";
-import { photonStatus } from "@/modules/assistant/photon";
+import { PhotonPanel } from "@/modules/assistant/messaging/PhotonPanel";
 import { AeroButton, OrbIcon, PageTitle, Panel } from "@/components/aero";
 import { formatEventDate } from "@/shared/time";
 
@@ -102,9 +102,7 @@ function Assistant() {
         <AeroButton type="submit" aria-label="Ask"><Send className="size-4" /></AeroButton>
       </form>
 
-      <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-navy/70">
-        <MessageCircle className="size-3.5" /> Text-message delivery: {photonStatus() === "ready" ? "available" : "not set up yet"}
-      </p>
+      <PhotonPanel />
     </div>
   );
 }
