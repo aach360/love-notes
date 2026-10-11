@@ -1,0 +1,6 @@
+[build]
+  command = "bun run build --mode netlify"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "22"
