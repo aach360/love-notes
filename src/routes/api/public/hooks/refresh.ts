@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/public/hooks/refresh")({
 
         const now = new Date();
         const dateKey = nyDateKey(now); // YYYY-MM-DD in America/New_York
-        const [y, m, d] = dateKey.split("-").map(Number);
+        const [y = 1970, m = 1, d = 1] = dateKey.split("-").map(Number);
         const weekday = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
         const hour = Number(
           new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(now),

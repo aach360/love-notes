@@ -51,7 +51,7 @@ export async function saveSnapshot(s: StoredSnapshot): Promise<boolean> {
     const db = await admin();
     const { error } = await db.from("event_snapshots").upsert({
       source: s.source,
-      events: s.events as unknown as Record<string, unknown>[],
+      events: s.events as unknown as import("@/integrations/supabase/types").Json,
       fetched_at: s.fetchedAt,
       last_attempt_at: s.lastAttemptAt,
       last_success_at: s.lastSuccessAt,
@@ -87,7 +87,7 @@ export async function claimRefreshSlot(slotKey: string): Promise<boolean> {
 export async function finishRefreshSlot(slotKey: string, result: unknown): Promise<void> {
   try {
     const db = await admin();
-    await db.from("refresh_runs").update({ result: result as Record<string, unknown> }).eq("slot_key", slotKey);
+    await db.from("refresh_runs").update({ result: result as import("@/integrations/supabase/types").Json }).eq("slot_key", slotKey);
   } catch {
     /* bookkeeping only */
   }
