@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-import type { PulseEvent } from "@/shared/types";
-import { askAssistant, type AssistantAnswer } from "./assistant";
+import { askAssistantAI } from "./assistant.functions";
+import type { AssistantAnswer } from "./assistant";
 
 export interface ChatTurn {
   q: string;
@@ -9,7 +9,9 @@ export interface ChatTurn {
 
 interface AssistantChatCtx {
   log: ChatTurn[];
-  ask: (question: string, events: PulseEvent[]) => void;
+  /** True while Rameses is writing a reply. */
+  pending: boolean;
+  ask: (question: string) => void;
   clear: () => void;
 }
 
@@ -23,13 +25,34 @@ const Ctx = (g.__pulseAssistantChatCtx ??= createContext<AssistantChatCtx | null
  */
 export function AssistantChatProvider({ children }: { children: ReactNode }) {
   const [log, setLog] = useState<ChatTurn[]>([]);
-  const ask = useCallback((question: string, events: PulseEvent[]) => {
-    const q = question.trim();
-    if (!q) return;
-    setLog((l) => [...l, { q, a: askAssistant(q, events) }]);
-  }, []);
+  const [pending, setPending] = useState(false);
+  const ask = useCallback(
+    (question: string) => {
+      const q = question.trim();
+      if (!q || pending) return;
+      setPending(true);
+      askAssistantAI({ data: { question: q } })
+        .then((a) => setLog((l) => [...l, { q, a }]))
+        .catch(() =>
+          setLog((l) => [
+            ...l,
+            {
+              q,
+              a: {
+                text: "I couldn't reach my event notes just now. Try again in a second.",
+                interpretation: "assistant unavailable",
+                events: [],
+                source: "local",
+              },
+            },
+          ]),
+        )
+        .finally(() => setPending(false));
+    },
+    [pending],
+  );
   const clear = useCallback(() => setLog([]), []);
-  const value = useMemo(() => ({ log, ask, clear }), [log, ask, clear]);
+  const value = useMemo(() => ({ log, pending, ask, clear }), [log, pending, ask, clear]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
