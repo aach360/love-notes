@@ -56,3 +56,7 @@ The hosted project has custom Gmail SMTP enabled (`smtp.gmail.com`, port 465). T
 The hosted confirmation email template was saved with subject `Confirm your UNCitall account` and the checked-in HTML, preserving `{{ .ConfirmationURL }}`. SMTP credential submission and successful signup delivery must be verified separately; a saved template alone does not confirm delivery.
 
 SMTP settings were verified persisted after the owner saved the app password. The previous signup failures at 00:09 Eastern on October 11 were Gmail SMTP 534 / 5.7.9 (application-specific password required). Those failures preceded the credential update. A fresh signup and received confirmation email are still required to verify delivery after the update.
+
+## Rameses web helper
+
+The bottom-right pixel mascot opens a Gemini-powered helper. Add `GEMINI_API_KEY` to ignored `.env.local` (and your hosting service's server environment), then restart the app. Optional `GEMINI_MODEL` defaults to `gemini-3.1-flash-lite`. Keys stay on the server. Questions and the last eight chat messages are sent to Google when configured; chats remain in memory and clear on reload. Without a key, the helper explicitly reports unconfigured AI and offers imported event matches. Event ids from model responses are validated against the server's shortlist; invalid output falls back to real matches. This web helper does not change the Photon agent.

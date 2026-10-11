@@ -57,6 +57,16 @@ export function PhotonPanel() {
       <h2 className="flex items-center gap-2 font-bold text-navy">
         <MessageCircle className="size-4" /> iMessage with Rameses
       </h2>
+      <ol
+        aria-label="iMessage connection steps"
+        className="flex flex-wrap gap-2 text-xs font-bold text-navy"
+      >
+        <li className="aero-control rounded-full px-3 py-2">{link ? "✓" : "1"} Link phone</li>
+        <li className="aero-control rounded-full px-3 py-2">
+          {link && !link.pending ? "✓" : "2"} Confirm sender
+        </li>
+        <li className="aero-control rounded-full px-3 py-2">3 Choose notifications</li>
+      </ol>
       <p className="text-sm text-muted-foreground">
         Text questions about UNC events and get reminders for your plan, even with the app closed.
       </p>

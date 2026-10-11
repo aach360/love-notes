@@ -11,6 +11,8 @@ import { useClubDevice } from "@/modules/clubs/useClubDevice";
 import { eventsQuery } from "@/modules/ingestion/events.functions";
 import { formatEventDate } from "@/shared/time";
 
+import { markClubRead } from "@/modules/clubs/unread";
+
 export const Route = createFileRoute("/clubs/$clubId")({
   head: () => ({
     meta: [
@@ -53,7 +55,10 @@ function ClubChat() {
   const messages = msgs.data?.ok ? msgs.data.messages : [];
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length]);
+    if (device && msgs.data?.ok && document.visibilityState === "visible") {
+      markClubRead(clubId, device.deviceToken, new Date().toISOString());
+    }
+  }, [messages.length, clubId, device, msgs.data]);
 
   const events = useQuery(eventsQuery);
   const clubEvents = club

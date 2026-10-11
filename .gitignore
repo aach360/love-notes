@@ -41,3 +41,6 @@ agent/.env
 agent/.env.*
 !agent/.env.example
 agent/.state/
+
+# Netlify generated functions and local account linkage
+.netlify/

@@ -1063,3 +1063,7 @@
     max-height: 180px;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .rameses-launcher { transition: none; }
+}

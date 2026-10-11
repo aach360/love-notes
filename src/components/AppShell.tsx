@@ -5,6 +5,8 @@ import { useAuth } from "@/modules/auth/AuthProvider";
 import { useUserState } from "@/modules/recommendations/UserStateProvider";
 import { Logo as Brand } from "@/components/Logo";
 
+import { RamesesHelper } from "@/modules/assistant/RamesesHelper";
+
 const NAV = [
   { to: "/", label: "Discover", icon: Sparkles },
   { to: "/saved", label: "Saved", icon: Heart },
@@ -105,7 +107,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-dvh">
       <Ambient />
-      <header className="sticky top-3 z-30 px-3">
+      <RamesesHelper />
+      <header className="sticky top-3 z-50 px-3">
         <div className="floating-nav mx-auto flex h-16 max-w-4xl items-center justify-between gap-2 rounded-full px-3 pl-4">
           <Logo />
           <nav className="hidden gap-1 md:flex" aria-label="Main">
@@ -134,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <div className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:px-6 md:pb-10">
-        <main className="min-w-0">{children}</main>
+        <main className="relative z-0 min-w-0">{children}</main>
       </div>
 
       <nav

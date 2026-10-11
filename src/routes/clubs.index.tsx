@@ -8,6 +8,8 @@ import { StatePanel } from "@/components/StatePanel";
 import { createClub, joinClub, listClubs } from "@/modules/clubs/clubs.functions";
 import { useClubDevice } from "@/modules/clubs/useClubDevice";
 
+import { UnreadBadge } from "@/modules/clubs/UnreadBadge";
+
 const clubsQuery = queryOptions({ queryKey: ["clubs"], queryFn: () => listClubs() });
 
 export const Route = createFileRoute("/clubs/")({
@@ -288,6 +290,7 @@ function ClubsPage() {
                       className="font-bold text-navy hover:underline"
                     >
                       {c.name}
+                      {device && <UnreadBadge clubId={c.id} deviceToken={device.deviceToken} />}
                     </Link>
                   ) : (
                     <h3 className="font-bold text-navy">{c.name}</h3>

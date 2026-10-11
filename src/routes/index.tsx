@@ -89,7 +89,7 @@ function Discover() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-2">
         <div role="tablist" aria-label="Discover view" className="view-switch">
           {(
             [
@@ -108,14 +108,14 @@ function Discover() {
             </button>
           ))}
         </div>
+        <FilterSidebar
+          value={filters}
+          onChange={setFilters}
+          onClear={() => setFilters(DEFAULT_FILTERS)}
+          categories={categories}
+        />
         <TasteSidebar />
       </div>
-      <FilterSidebar
-        value={filters}
-        onChange={setFilters}
-        onClear={() => setFilters(DEFAULT_FILTERS)}
-        categories={categories}
-      />
 
       {view === "map" ? (
         <MapView

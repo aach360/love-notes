@@ -30,7 +30,12 @@ export function ClubIMessage({
     <div className="mb-4">
       <PhotonPanel />
       <Panel className="mt-3 space-y-2 p-4">
-        <h2 className="font-bold text-navy">This club on iMessage</h2>
+        <h2 className="font-bold text-navy">3 · Enable this club</h2>
+        {query.data?.enabled && (
+          <p role="status" className="font-bold text-primary">
+            ✓ Club texts enabled
+          </p>
+        )}
         <p className="text-sm text-muted-foreground">
           First link and confirm your iMessage above. Then enable this club to receive new club
           messages through Photon and reply from Messages. Your address stays private.
