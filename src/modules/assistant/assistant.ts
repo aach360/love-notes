@@ -7,6 +7,8 @@ export interface AssistantAnswer {
   events: Pick<PulseEvent, "id" | "title" | "startsAt" | "endsAt" | "location" | "sourceUrl" | "isDemo">[];
   /** How the question was interpreted — shown for transparency. */
   interpretation: string;
+  /** "ai" = written by the language model over real listings; "local" = the deterministic matcher. */
+  source?: "ai" | "local";
 }
 
 /**
