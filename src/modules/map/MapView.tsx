@@ -63,7 +63,9 @@ export function MapView({ events, date, onDate }: Props) {
     if (selected) listRef.current?.querySelector(`[data-venue="${selected}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [selected]);
 
+  /** First tap highlights the marker; tapping an already-highlighted venue opens the details. */
   const pickEvent = (l: Located) => {
+    if (selected === l.place.key) return setDetail(l.event);
     setSelected(l.place.key);
     setFocus({ lat: l.place.lat, lng: l.place.lng, nonce: Date.now() });
   };
