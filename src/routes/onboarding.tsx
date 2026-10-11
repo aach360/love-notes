@@ -6,7 +6,6 @@ import type { PulseEvent, RankedEvent } from "@/shared/types";
 import { TOPICS, topicLabel } from "@/shared/taxonomy";
 import { eventsQuery } from "@/modules/ingestion/events.functions";
 import { SwipeDeck } from "@/modules/discovery/SwipeDeck";
-import { EventDetail } from "@/modules/discovery/EventDetail";
 import { useUserState } from "@/modules/recommendations/UserStateProvider";
 import { useAuth } from "@/modules/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,7 +67,6 @@ function Onboarding() {
   const [major, setMajor] = useState("");
   const [year, setYear] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
-  const [detail, setDetail] = useState<PulseEvent | null>(null);
   const cards = useRef<PulseEvent[] | null>(null);
   if (!cards.current && feed.data) cards.current = pickDiverse(feed.data.events, new Set(state.swipes.map((s) => s.eventId)));
 
@@ -210,7 +208,7 @@ function Onboarding() {
           ) : remaining.length ? (
             <>
               <p className="text-center text-sm font-semibold text-muted-foreground">Last step: swipe right on what sounds fun ({done} of {cards.current.length}).</p>
-              <SwipeDeck ranked={remaining} onSwipe={(e, d) => recordSwipe(e, d)} onUndo={undoLast} canUndo={done > 0} onDetails={setDetail} />
+              <SwipeDeck ranked={remaining} onSwipe={(e, d) => recordSwipe(e, d)} onUndo={undoLast} canUndo={done > 0} />
               <button type="button" disabled={saving} onClick={finish} className="mx-auto block text-sm font-bold text-muted-foreground underline">Skip for now</button>
             </>
           ) : (
@@ -222,7 +220,6 @@ function Onboarding() {
           )}
         </>
       )}
-      {detail && <EventDetail event={detail} onClose={() => setDetail(null)} />}
     </div>
   );
 }
