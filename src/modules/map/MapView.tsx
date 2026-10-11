@@ -65,12 +65,12 @@ export function MapView({ events, date, onDate }: Props) {
 
   /** First tap highlights the marker; tapping an already-highlighted venue opens the details. */
   const pickEvent = (l: Located) => {
-    if (selected === l.place.key) return setDetail(l.event);
+    if (selected === l.place.key) { setDetail(l.event); return; }
     setSelected(l.place.key);
     setFocus({ lat: l.place.lat, lng: l.place.lng, nonce: Date.now() });
   };
   const nearMe = () => {
-    if (!("geolocation" in navigator)) return toast("Location isn't available in this browser.");
+    if (!("geolocation" in navigator)) { toast("Location isn't available in this browser."); return; }
     navigator.geolocation.getCurrentPosition(
       (p) => { const c = { lat: p.coords.latitude, lng: p.coords.longitude }; setMe(c); setFocus({ ...c, zoom: 16, nonce: Date.now() }); },
       () => toast("Location permission was declined — the map still shows all of campus."),
@@ -185,9 +185,9 @@ export function MapView({ events, date, onDate }: Props) {
           className="flex w-full flex-col items-center gap-1 pb-2 pt-2"
           aria-expanded={sheetOpen}
           onClick={() => setSheetOpen((v) => !v)}
-          onPointerDown={(e) => { (e.currentTarget as HTMLElement).dataset.y = String(e.clientY); }}
+          onPointerDown={(e) => { (e.currentTarget as HTMLElement).dataset["y"] = String(e.clientY); }}
           onPointerUp={(e) => {
-            const y0 = Number((e.currentTarget as HTMLElement).dataset.y ?? e.clientY);
+            const y0 = Number((e.currentTarget as HTMLElement).dataset["y"] ?? e.clientY);
             if (Math.abs(e.clientY - y0) > 30) { e.preventDefault(); setSheetOpen(e.clientY < y0); }
           }}
         >

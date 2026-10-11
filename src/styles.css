@@ -458,7 +458,7 @@
 .map-chip.is-on { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
 .map-row { display: flex; gap: .6rem; padding: .7rem; border-radius: 1rem; background: oklch(1 0 0 / .7); border: 1px solid transparent; transition: border-color .18s, background .18s; }
 .map-row.is-selected { border-color: color-mix(in oklab, var(--primary) 55%, transparent); background: oklch(0.97 0.02 235); }
-.map-icon-btn { display: inline-flex; size: 44px; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 999px; color: var(--navy); background: oklch(1 0 0 / .85); box-shadow: var(--control-shadow); }
+.map-icon-btn { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 999px; color: var(--navy); background: oklch(1 0 0 / .85); box-shadow: var(--control-shadow); }
 .map-pin { width: 34px; height: 34px; border-radius: 999px 999px 999px 4px; transform: rotate(-45deg); display: grid; place-items: center; background: linear-gradient(160deg, color-mix(in oklab, var(--map-pin) 70%, white), var(--map-pin)); border: 2px solid oklch(1 0 0 / .95); box-shadow: 0 6px 14px -6px color-mix(in oklab, var(--navy) 70%, transparent); transition: transform .18s; cursor: pointer; }
 .map-pin span { transform: rotate(45deg); color: var(--primary-foreground); font: 700 12px/1 var(--font-display); }
 .map-pin-cluster { border-radius: 999px; transform: none; width: 40px; height: 40px; background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--map-pin) 45%, white), var(--map-pin)); }
