@@ -27,7 +27,9 @@ export function normalizeUserState(parsed: UserState | null | undefined): UserSt
   if (!parsed || parsed.version !== 1) return emptyUserState();
   const prefs = { ...emptyPreferences(), ...parsed.prefs };
   if (prefs.bandit) prefs.bandit = ensureBandit(prefs.bandit);
-  return { ...emptyUserState(), ...parsed, prefs };
+  // Drop any legacy demo events saved before demo data was removed.
+  const real = <T extends { event: { isDemo?: boolean } }>(xs: T[] | undefined) => (xs ?? []).filter((x) => !x.event?.isDemo);
+  return { ...emptyUserState(), ...parsed, saved: real(parsed.saved), plan: real(parsed.plan), prefs };
 }
 
 const KEY = "pulsematch:v1";

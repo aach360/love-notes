@@ -61,7 +61,7 @@ export function EventDetail({ event, onClose, actions, sheet = false, restoreFoc
                     </a>
                   </Button>
                 ) : (
-                  <span className="text-xs font-semibold text-muted-foreground">Demo event — no source page.</span>
+                  <span className="text-xs font-semibold text-muted-foreground">No original event page was listed.</span>
                 )}
               </div>
             </div>

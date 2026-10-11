@@ -185,7 +185,7 @@ export function RamesesChat() {
                         <li key={e.id} className="rounded-2xl bg-secondary p-2.5 text-sm">
                           <p className="text-xs font-bold text-navy">
                             {e.title}
-                            {e.isDemo && " (demo)"}
+                            
                           </p>
                           <p className="text-[11px] font-semibold text-muted-foreground">
                             {formatEventDate(e)}

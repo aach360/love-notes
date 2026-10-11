@@ -63,7 +63,7 @@ function Assistant() {
               <ul className="mt-2 space-y-2">
                 {m.a.events.map((e) => (
                   <li key={e.id} className="rounded-2xl bg-secondary p-3 text-sm">
-                    <p className="font-bold text-navy">{e.title}{e.isDemo && " (demo)"}</p>
+                    <p className="font-bold text-navy">{e.title}</p>
                     <p className="text-xs font-semibold text-muted-foreground">{formatEventDate(e)}{e.location ? ` · ${e.location}` : ""}</p>
                     {e.sourceUrl && (
                       <a href={e.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-primary">

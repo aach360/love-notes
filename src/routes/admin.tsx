@@ -43,7 +43,7 @@ function Admin() {
             const r = await run({ data: { token } });
             if (!r.ok) return setMsg(r.error);
             await qc.invalidateQueries({ queryKey: ["events"] });
-            setMsg(`${r.result.origin === "live" ? "Live" : "Demo"}: ${r.result.total} upcoming events. ` + r.result.sources.map((s) => `${s.source}: ${s.status}${s.status === "ok" ? ` (${s.eventCount}${s.complete ? "" : ", incomplete"}${s.stale ? ", stale" : ""})` : ""}`).join(" · ") + (r.result.ai ? ` · AI summaries: ${r.result.ai.status}, ${r.result.ai.enriched} new, ${r.result.ai.cached} reused${r.result.ai.failed ? `, ${r.result.ai.failed} failed` : ""}` : ""));
+            setMsg(`${r.result.origin === "live" ? "Live" : "No sources available"}: ${r.result.total} upcoming events. ` + r.result.sources.map((s) => `${s.source}: ${s.status}${s.status === "ok" ? ` (${s.eventCount}${s.complete ? "" : ", incomplete"}${s.stale ? ", stale" : ""})` : ""}`).join(" · ") + (r.result.ai ? ` · AI summaries: ${r.result.ai.status}, ${r.result.ai.enriched} new, ${r.result.ai.cached} reused${r.result.ai.failed ? `, ${r.result.ai.failed} failed` : ""}` : ""));
           }}
         >
           Refresh import

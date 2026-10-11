@@ -49,7 +49,6 @@ export function EventCard({ ranked, onDetails }: { ranked: RankedEvent; onDetail
         {ranked.reason && (
           <span className="absolute right-3 top-3 max-w-[60%] truncate rounded-full bg-card px-3 py-1 text-xs font-bold text-navy backdrop-blur-md">{ranked.reason}</span>
         )}
-        {e.isDemo && <span className="absolute bottom-3 right-3 rounded-full bg-navy px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-navy-foreground">Demo</span>}
       </div>
       <div className="space-y-2 px-5 pb-4 pt-3">
         <h2 className="line-clamp-2 font-display text-xl font-bold leading-tight text-navy">{e.title}</h2>
