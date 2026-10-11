@@ -1,37 +1,9 @@
 # Roadmap
-- [x] Remove Confirmed free filter and refine shared Aero presentation; browser checks and 20 regression tests pass.
-- [x] Shared types, ingestion adapters, importer, ranking, storage, plan, assistant logic
-- [x] UI: shell + Discover, Saved, Plan, Assistant, Admin
-- [x] Glossy aqua/sky/bubble visual system across all tabs
-- [x] Tests (dedupe, expired, persistence, ranking)
-- [x] Docs: README, CONTRACTS.md, TEAM.md, .env.example, supabase/schema.sql, AGENTS.md
-- [x] Clubs: star, join by code, members-only chat, iMessage agent endpoints + Spectrum script
-- [ ] Photon keys + PHOTON_AGENT_TOKEN — waiting on team
-- [ ] Secrets (ADMIN_IMPORT_TOKEN, GEMINI_API_KEY, ELEVENLABS_API_KEY) — waiting on team
 
-- [x] Add Ackland, Morehead, UNC Libraries, Orange County event sources
-- [x] Discover: move filters into hover-reveal sidebar with Rameses mascot
-- [ ] Verify Photon texting — blocked: PHOTON_AGENT_TOKEN not yet saved; agent must be running on a laptop
-- [x] Rameses: real artwork, attached to sidebar footer, no overlap
-- [ ] Hybrid recommender: embeddings + LinUCB bandit + diversity rerank
-- [ ] Calendar view of plan/saved events + download .ics to phone
-- [x] Calendar month view (/calendar, linked from Plan) + .ics download for phones
-- [x] Poster/club photo scan (/scan) via Gemini vision
-- [x] Swap Rameses mascot for Tar Heel foot logo in filter sidebar
-- [x] Optional sign-in (Google + email) with cloud-saved state and 5-card onboarding
-- [ ] Rameses corner chat widget on Discover (shared assistant logic, event save chips)
-- [ ] Verify real Google/email sign-in end to end
-- [x] Rameses corner chat widget (shared conversation with Assistant tab, save chips, Escape/a11y)
-- [x] Verify sign-in: email sign-up was disabled in backend — enabled; Google already on; test signup works
-- [ ] Recommendation quality: shared versioned interest taxonomy (topic/format/benefits/constraints), evidence-grounded classification, onboarding expansion
-- [x] Recommendation quality + onboarding brief: shared taxonomy (30 topics/10 formats/4 benefits), content-grounded classification with evidence, tag rejection when unsupported, taxonomy-dimension bandit (v2 features), cold-start interest prior, rotating AI-enrichment coverage, 4-step onboarding (intent/interests/background/cards), CloudSync audit (failed reads never overwrite, stale-save guard, visible save toasts, sign-out restores device state), 59 tests green, eval rerun
-
-- [x] Exploration cards ("Something new to try", ~15%, diagnostics, tests)
-- [x] Twice-weekly refresh (Mon/Thu 4am ET) — runs against the published site
-- [x] Visual + motion redesign (brief: Give_PulseMatch_a_substantial_visual)
-- [x] UNCover rebrand (folded-U logo, favicon), calmer background, Cards/Map switch with OSM map, venue lookup, clustering, list sync, Near me, Search this area
-- [x] Action dock redesign + swipe-up detail sheet + stable card identity during refresh (Aarav, 2026-10-11); browser checks and 20 regression tests pass
-- [x] Heel Life JSON importer + RSS fallback, no demo, twice-weekly cron, centered detail sheet + swipe-down
-- [x] Replace foot logo with translucent arrow; Rameses as chatbot identity
-- [x] Richer Frutiger Aero background (sun bloom, drifting clouds, grass horizon, more bubbles)
-- [x] Assistant: natural grounded answers via AI gateway, deterministic fallback
+- [x] Real event adapters, persisted snapshots and protected refresh
+- [x] Discover cards, filters, approximate venue map and stable swipe lifecycle
+- [x] Saved events, plan overlap warnings, calendar and .ics export
+- [x] Direct Supabase sign-in, account state sync and members-only club chats
+- [x] Deterministic taxonomy classification and fixed-weight ranking
+- [ ] Configure and verify the independent production host, Supabase project and refresh schedule
+- [ ] Merge cross-source duplicate listings

@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { ChevronDown, RotateCcw, Sparkles } from "lucide-react";
 import { useUserState } from "./UserStateProvider";
 import { keyLabel } from "./ranking";
 import { cn } from "@/lib/utils";
 
-/** Small personal status pill on Discover; expands to show what UNCover has learned. Scores live in /lab. */
+/** Small personal status pill on Discover; expands to show what UNCover has learned. */
 export function TasteSidebar({ className }: { className?: string }) {
   const { state, reset } = useUserState();
   const [open, setOpen] = useState(false);
@@ -27,13 +26,20 @@ export function TasteSidebar({ className }: { className?: string }) {
         <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="rameses-panel absolute right-0 z-20 mt-2 w-64 rounded-2xl bg-popover p-4 text-sm shadow-float">
+        <div className="taste-panel absolute right-0 z-20 mt-2 w-64 rounded-2xl bg-popover p-4 text-sm shadow-float">
           <p className="font-bold text-navy">You've been into</p>
-          <p className="mt-1 text-foreground/75">{top.length ? top.map(([k]) => keyLabel(k)).join(" · ") : "Save a few events and your favorite kinds will show up here."}</p>
+          <p className="mt-1 text-foreground/75">
+            {top.length
+              ? top.map(([k]) => keyLabel(k)).join(" · ")
+              : "Save a few events and your favorite kinds will show up here."}
+          </p>
           <div className="mt-3 flex items-center justify-between text-xs font-bold">
-            <Link to="/lab" className="text-primary hover:underline">Ranking details</Link>
             {state.swipes.length > 0 && (
-              <button type="button" className="inline-flex items-center gap-1 text-muted-foreground hover:text-destructive" onClick={() => confirm("Reset swipes, saved events and plan?") && reset()}>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 text-muted-foreground hover:text-destructive"
+                onClick={() => confirm("Reset swipes, saved events and plan?") && reset()}
+              >
                 <RotateCcw className="size-3" /> Start over
               </button>
             )}

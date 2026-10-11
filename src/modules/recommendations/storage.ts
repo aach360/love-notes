@@ -1,6 +1,5 @@
 import type { PlanItem, SavedEvent, Swipe, UserPreferences } from "@/shared/types";
 import { emptyPreferences } from "./ranking";
-import { ensureBandit } from "./bandit";
 
 export interface UserState {
   version: 1;
@@ -10,7 +9,13 @@ export interface UserState {
   prefs: UserPreferences;
 }
 
-export const emptyUserState = (): UserState => ({ version: 1, swipes: [], saved: [], plan: [], prefs: emptyPreferences() });
+export const emptyUserState = (): UserState => ({
+  version: 1,
+  swipes: [],
+  saved: [],
+  plan: [],
+  prefs: emptyPreferences(),
+});
 
 /**
  * Storage adapter. Default = anonymous local demo session (localStorage).
@@ -22,19 +27,30 @@ export interface UserStateStorage {
   clear(): void;
 }
 
-/** Fill defaults and reset stale bandit state (swipes, saved events and plan are kept). */
+/** Fill defaults and remove retired model state (swipes, saved events and plan are kept). */
 export function normalizeUserState(parsed: UserState | null | undefined): UserState {
   if (!parsed || parsed.version !== 1) return emptyUserState();
   const prefs = { ...emptyPreferences(), ...parsed.prefs };
-  if (prefs.bandit) prefs.bandit = ensureBandit(prefs.bandit);
+  delete (prefs as UserPreferences & { bandit?: unknown }).bandit;
   // Drop any legacy demo events saved before demo data was removed.
-  const real = <T extends { event: { isDemo?: boolean } }>(xs: T[] | undefined) => (xs ?? []).filter((x) => !x.event?.isDemo);
-  return { ...emptyUserState(), ...parsed, saved: real(parsed.saved), plan: real(parsed.plan), prefs };
+  const real = <T extends { event: { isDemo?: boolean } }>(xs: T[] | undefined) =>
+    (xs ?? []).filter((x) => !x.event?.isDemo);
+  return {
+    ...emptyUserState(),
+    ...parsed,
+    saved: real(parsed.saved),
+    plan: real(parsed.plan),
+    prefs,
+  };
 }
 
 const KEY = "pulsematch:v1";
 
-export function createLocalStorage(ls: Pick<Storage, "getItem" | "setItem" | "removeItem"> | null = typeof window !== "undefined" ? window.localStorage : null): UserStateStorage {
+export function createLocalStorage(
+  ls: Pick<Storage, "getItem" | "setItem" | "removeItem"> | null = typeof window !== "undefined"
+    ? window.localStorage
+    : null,
+): UserStateStorage {
   return {
     load() {
       try {

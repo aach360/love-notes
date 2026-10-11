@@ -1,6 +1,6 @@
 import type { PulseEvent, SourceId, SourceRunStatus } from "@/shared/types";
 
-/** Server-only: durable per-source snapshot storage in Lovable Cloud. Never import from client code. */
+/** Server-only: durable per-source snapshot storage in Supabase. Never import from client code. */
 
 export interface StoredSnapshot {
   source: SourceId;
@@ -87,7 +87,10 @@ export async function claimRefreshSlot(slotKey: string): Promise<boolean> {
 export async function finishRefreshSlot(slotKey: string, result: unknown): Promise<void> {
   try {
     const db = await admin();
-    await db.from("refresh_runs").update({ result: result as import("@/integrations/supabase/types").Json }).eq("slot_key", slotKey);
+    await db
+      .from("refresh_runs")
+      .update({ result: result as import("@/integrations/supabase/types").Json })
+      .eq("slot_key", slotKey);
   } catch {
     /* bookkeeping only */
   }

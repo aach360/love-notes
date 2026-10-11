@@ -31,7 +31,7 @@ export function createMemoryRepository(): EventRepository {
         const prev = map.get(key);
         if (prev) {
           updated++;
-          map.set(key, { ...e, aiSummary: e.aiSummary ?? prev.aiSummary ?? null, aiTags: e.aiTags ?? prev.aiTags ?? [] });
+          map.set(key, e);
         } else {
           inserted++;
           map.set(key, e);

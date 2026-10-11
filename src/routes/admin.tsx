@@ -27,7 +27,10 @@ function Admin() {
   const [msg, setMsg] = useState<string | null>(null);
   return (
     <div className="max-w-md">
-      <PageTitle title="Team import" subtitle="Re-fetch events from every live calendar. Requires the team import key." />
+      <PageTitle
+        title="Team import"
+        subtitle="Re-fetch events from every live calendar. Requires the team import key."
+      />
       <Panel className="space-y-3 p-5">
         <input
           type="password"
@@ -43,7 +46,15 @@ function Admin() {
             const r = await run({ data: { token } });
             if (!r.ok) return setMsg(r.error);
             await qc.invalidateQueries({ queryKey: ["events"] });
-            setMsg(`${r.result.origin === "live" ? "Live" : "No sources available"}: ${r.result.total} upcoming events. ` + r.result.sources.map((s) => `${s.source}: ${s.status}${s.status === "ok" ? ` (${s.eventCount}${s.complete ? "" : ", incomplete"}${s.stale ? ", stale" : ""})` : ""}`).join(" · ") + (r.result.ai ? ` · AI summaries: ${r.result.ai.status}, ${r.result.ai.enriched} new, ${r.result.ai.cached} reused${r.result.ai.failed ? `, ${r.result.ai.failed} failed` : ""}` : ""));
+            setMsg(
+              `${r.result.origin === "live" ? "Live" : "No sources available"}: ${r.result.total} upcoming events. ` +
+                r.result.sources
+                  .map(
+                    (s) =>
+                      `${s.source}: ${s.status}${s.status === "ok" ? ` (${s.eventCount}${s.complete ? "" : ", incomplete"}${s.stale ? ", stale" : ""})` : ""}`,
+                  )
+                  .join(" · "),
+            );
           }}
         >
           Refresh import

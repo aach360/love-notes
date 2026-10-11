@@ -1,20 +1,32 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { OnboardingProfile, PulseEvent, SwipeDirection } from "@/shared/types";
 import { applySwipe } from "./ranking";
-import { banditFeatures, ensureBandit, updateBandit } from "./bandit";
-import { createLocalStorage, emptyUserState, type UserState, type UserStateStorage } from "./storage";
+import {
+  createLocalStorage,
+  emptyUserState,
+  type UserState,
+  type UserStateStorage,
+} from "./storage";
 
 interface Ctx {
   state: UserState;
   hydrated: boolean;
-  /** recordSwipe(event, direction, features?): like also saves the event. `features` = the vector used when the card was shown. */
-  recordSwipe: (event: PulseEvent, dir: SwipeDirection, features?: number[], exploratory?: boolean) => void;
+  /** recordSwipe(event, direction): like also saves the event. */
+  recordSwipe: (event: PulseEvent, dir: SwipeDirection) => void;
   undoLast: () => void;
   removeSaved: (eventId: string) => void;
-  /** Save an event without a swipe (e.g. from the assistant chat). No bandit reward. */
+  /** Save an event without a swipe. */
   saveEvent: (event: PulseEvent) => void;
   togglePlan: (event: PulseEvent) => void;
-  setRemindersOptIn: (v: boolean) => void;
   /** Store onboarding answers; interests become an explicit cold-start prior on topic weights. */
   setOnboarding: (p: OnboardingProfile) => void;
   reset: () => void;
@@ -26,7 +38,13 @@ interface Ctx {
 const g = globalThis as { __pulseUserStateCtx?: React.Context<Ctx | null> };
 const UserStateContext = (g.__pulseUserStateCtx ??= createContext<Ctx | null>(null));
 
-export function UserStateProvider({ children, storage }: { children: ReactNode; storage?: UserStateStorage }) {
+export function UserStateProvider({
+  children,
+  storage,
+}: {
+  children: ReactNode;
+  storage?: UserStateStorage;
+}) {
   const store = useRef<UserStateStorage | null>(storage ?? null);
   const [state, setState] = useState<UserState>(emptyUserState);
   const [hydrated, setHydrated] = useState(false);
@@ -53,19 +71,17 @@ export function UserStateProvider({ children, storage }: { children: ReactNode; 
     () => ({
       state,
       hydrated,
-      recordSwipe: (event, dir, features, exploratory) =>
+      recordSwipe: (event, dir) =>
         update((s) => {
           const now = new Date().toISOString();
-          // One explicit swipe = one bandit reward. The auto-save of a like is not a second reward,
-          // and a repeat swipe on the same event doesn't update the model again.
-          const first = !s.swipes.some((x) => x.eventId === event.id);
-          const x = features ?? banditFeatures(event, null, new Date());
-          const bandit = first ? updateBandit(ensureBandit(s.prefs.bandit), x, dir === "like" ? 1 : 0) : ensureBandit(s.prefs.bandit);
           return {
             ...s,
             // Snapshot the event so the recommender can keep learning from it after it leaves the feed.
-            swipes: [...s.swipes.filter((x) => x.eventId !== event.id), { eventId: event.id, direction: dir, at: now, event, ...(exploratory ? { exploratory: true } : {}) }],
-            prefs: { ...applySwipe(s.prefs, event, dir), bandit },
+            swipes: [
+              ...s.swipes.filter((x) => x.eventId !== event.id),
+              { eventId: event.id, direction: dir, at: now, event },
+            ],
+            prefs: applySwipe(s.prefs, event, dir),
             saved:
               dir === "like" && !s.saved.some((x) => x.eventId === event.id)
                 ? [...s.saved, { eventId: event.id, savedAt: now, event }]
@@ -80,27 +96,43 @@ export function UserStateProvider({ children, storage }: { children: ReactNode; 
         update((s) =>
           s.saved.some((x) => x.eventId === event.id)
             ? s
-            : { ...s, saved: [...s.saved, { eventId: event.id, savedAt: new Date().toISOString(), event }] },
+            : {
+                ...s,
+                saved: [
+                  ...s.saved,
+                  { eventId: event.id, savedAt: new Date().toISOString(), event },
+                ],
+              },
         ),
       removeSaved: (id) =>
-        update((s) => ({ ...s, saved: s.saved.filter((x) => x.eventId !== id), plan: s.plan.filter((x) => x.eventId !== id) })),
+        update((s) => ({
+          ...s,
+          saved: s.saved.filter((x) => x.eventId !== id),
+          plan: s.plan.filter((x) => x.eventId !== id),
+        })),
       togglePlan: (event) =>
         update((s) =>
           s.plan.some((p) => p.eventId === event.id)
             ? { ...s, plan: s.plan.filter((p) => p.eventId !== event.id) }
-            : { ...s, plan: [...s.plan, { eventId: event.id, addedAt: new Date().toISOString(), event }] },
+            : {
+                ...s,
+                plan: [...s.plan, { eventId: event.id, addedAt: new Date().toISOString(), event }],
+              },
         ),
-      setRemindersOptIn: (v) => update((s) => ({ ...s, prefs: { ...s.prefs, remindersOptIn: v } })),
       setOnboarding: (p) =>
         update((s) => {
           // Explicit cold-start prior: chosen interests get a starting weight. This is NOT
-          // fabricated swipe history — no swipes are written and the bandit count stays put.
+          // fabricated swipe history — no swipes are written.
           const weights = { ...s.prefs.weights };
-          for (const id of p.interests) weights[`topic:${id}`] = Math.max(weights[`topic:${id}`] ?? 0, 1.5);
+          for (const id of p.interests)
+            weights[`topic:${id}`] = Math.max(weights[`topic:${id}`] ?? 0, 1.5);
           return { ...s, prefs: { ...s.prefs, weights, onboarding: p } };
         }),
       reset: () => update(() => emptyUserState()),
-      replaceState: (next) => { history.current = []; setState(next); },
+      replaceState: (next) => {
+        history.current = [];
+        setState(next);
+      },
     }),
     [state, hydrated, update],
   );

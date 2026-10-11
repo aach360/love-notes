@@ -8,17 +8,14 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AppShell } from "@/components/AppShell";
 import { UserStateProvider } from "@/modules/recommendations/UserStateProvider";
-import { AssistantChatProvider } from "@/modules/assistant/AssistantChatProvider";
-import { RamesesChat } from "@/modules/assistant/RamesesChat";
 import { AuthProvider } from "@/modules/auth/AuthProvider";
 import { CloudSync } from "@/modules/auth/CloudSync";
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -45,9 +42,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -88,7 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "UNCover — What's happening at UNC" },
       { name: "description", content: "What's happening at UNC Chapel Hill, one event at a time." },
       { property: "og:title", content: "UNCover — What's happening at UNC" },
-      { property: "og:description", content: "What's happening at UNC Chapel Hill, one event at a time." },
+      {
+        property: "og:description",
+        content: "What's happening at UNC Chapel Hill, one event at a time.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -100,7 +97,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -132,13 +132,10 @@ function RootComponent() {
       <AuthProvider>
         <UserStateProvider>
           <CloudSync />
-          <AssistantChatProvider>
-            <AppShell>
-              <Outlet />
-            </AppShell>
-            <RamesesChat />
-            <Toaster />
-          </AssistantChatProvider>
+          <AppShell>
+            <Outlet />
+          </AppShell>
+          <Toaster />
         </UserStateProvider>
       </AuthProvider>
     </QueryClientProvider>

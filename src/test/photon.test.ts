@@ -1,3 +1,4 @@
+import { searchEvents } from "@/modules/assistant/messaging/event-search";
 import { describe, expect, it } from "vitest";
 import {
   parseCommand,
@@ -97,5 +98,22 @@ describe("reminder eligibility", () => {
     expect(isAgentOnline(null)).toBe(false);
     expect(isAgentOnline("2026-10-10T10:00:00Z", Date.parse("2026-10-10T10:02:00Z"))).toBe(false);
     expect(isAgentOnline("2026-10-10T10:00:00Z", Date.parse("2026-10-10T10:00:15Z"))).toBe(true);
+  });
+});
+
+describe("Photon event lookup without AI", () => {
+  const now = new Date("2026-10-10T12:00:00-04:00");
+  it("returns only imported events matching the requested keywords", () => {
+    const listings = [
+      event({ id: "music", title: "Jazz concert" }),
+      event({ id: "sports", title: "Basketball practice" }),
+    ];
+    const answer = searchEvents("jazz", listings, now);
+    expect(answer.events.map((e) => e.id)).toEqual(["music"]);
+  });
+  it("does not fabricate a listing when nothing matches", () => {
+    const answer = searchEvents("astronomy", [event({ title: "Jazz concert" })], now);
+    expect(answer.events).toEqual([]);
+    expect(answer.text).toContain("couldn't find");
   });
 });

@@ -16,7 +16,7 @@ Keep `.env` and the local `.state` journal out of Git. The journal retains incom
 
 ## Connect and use
 
-Sign in to the app, open Assistant or Plan, and choose **Connect iMessage**. Text the generated `link CODE` to the displayed bot address. Return to the app and confirm the sender address. Codes expire after ten minutes and cannot be reused. Confirming a connection does not enable reminders.
+Sign in to the app, open Plan, and choose **Connect iMessage**. Text the generated `link CODE` to the displayed bot address. Return to the app and confirm the sender address. Codes expire after ten minutes and cannot be reused. Confirming a connection does not enable reminders.
 
 Enable plan reminders separately and choose 15, 30, or 60 minutes. Reminders use the latest **saved cloud plan**. Unsynced browser changes are not available to the server. The old local-only `remindersOptIn` flag does not opt anyone into this new delivery system.
 

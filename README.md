@@ -1,35 +1,39 @@
-# PulseMatch
+# UNCover
 
-Swipe-based UNC Chapel Hill event discovery. Built on TanStack Start + React + TypeScript + Tailwind v4.
+UNC Chapel Hill event discovery built with TanStack Start, React, TypeScript and Tailwind v4.
 
 ## Run locally
-```
+
+```sh
 bun install
-cp .env.example .env   # fill what you have; everything is optional
-bun run dev            # http://localhost:8080
-bun run test           # dedupe, expiry, persistence, ranking, overlaps
+cp .env.example .env
+# Configure your Supabase project in .env.
+bun run dev # http://localhost:8080
+bun run test
+bun run build
+bun run start # production Node server, default port 3000
 ```
 
-## How events get in
-- Server function `listEvents` aggregates independent source adapters in parallel (Heel Life RSS, UNC Calendar, UNC Libraries, Ackland, Morehead, Carrboro, Orange County, optional Ticketmaster). One failing source never erases the others; demo data appears only when every source fails. See docs-ingestion.md.
-- Results are cached in server memory for 15 min (never fetched per swipe). Ended/cancelled events are dropped, duplicates merged by source + source ID.
-- Manual re-import: open `/admin` and enter `ADMIN_IMPORT_TOKEN`. Without that secret, import is disabled server-side.
-- Note: the default store is per server instance (in-memory). `supabase/schema.sql` is the proposed database version.
+The build uses standard Vite and TanStack Start plugins with Nitro's Node server target.
 
-## Demo mode
-No sign-up. Swipes, saved events, plan and preferences live in localStorage (`pulsematch:v1`) behind `UserStateStorage`.
+## Features
 
-## Integrations
-| | Status |
-|---|---|
-| Heel Life JSON + RSS | Implemented |
-| Recommendations (weighted category/tag) | Implemented |
-| Assistant (rule-based, grounded in stored events) | Implemented |
-| Gemini enrichment | Runs during the protected admin refresh (≤12 events, 2 at a time, ~25 s budget); results cached by event id + content hash **in memory only** (lost on restart). Feed reads use cached results and never wait on the model. Needs `GEMINI_API_KEY`. |
-| ElevenLabs "Listen to my plan" | Implemented, needs `ELEVENLABS_API_KEY`; shows text itinerary otherwise |
-| Photon messaging | Scaffolded interface only |
-| Reminders | Opt-in preference stored; no delivery provider |
-| Event suggestions / review queue | Not built |
-| Auth + DB persistence | Not built (schema proposed) |
+- Discover real event listings, filter by date/category, and browse approximate venue pins on an OpenStreetMap map.
+- Save events, build a plan with overlap warnings, view the calendar, and export an .ics file.
+- Rank events using fixed topic/category weights, timing and category variety. Swipes adjust those weights locally; no predictive model or provider requests.
+- Optional email/password and Google sign-in through Supabase. Google requires configuration in your own Supabase project, including allowed redirect URLs.
+- Account state sync and members-only club chats through Supabase with RLS and server functions.
 
-See `CONTRACTS.md` and `TEAM.md`.
+## Events and configuration
+
+Independent source adapters refresh in parallel only during a protected admin or scheduled refresh. Feed reads use persisted Supabase snapshots with a 15-minute read cache. Failed sources retain usable snapshots for up to eight days. If none are usable, the feed is empty and unavailable; fixtures are only used in tests.
+
+Set `ADMIN_IMPORT_TOKEN` to enable manual refresh at `/admin`. Scheduled requests to `/api/public/hooks/refresh` need `CRON_SECRET` (optional rotation via `CRON_SECRET_PREVIOUS`). Configure scheduling on your own host. `DATABASE_URL` is used by Drizzle migrations; server operations need `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Only public project URL/key use the `VITE_` prefix. Ticketmaster is optional.
+
+Existing hosted data is not migrated or deleted by changing this repository. To move providers, provision your own Supabase project and apply the retained schemas/migrations before pointing the app at it.
+
+See [contracts](CONTRACTS.md) and [ingestion](docs-ingestion.md).
+
+## Photon iMessage
+
+Photon messaging is available from Plan: account linking, opted-in reminders, club commands and keyword/date searches over imported events. It uses a separate always-on Spectrum agent and Supabase service-only RPCs; no AI integration is required. See [agent setup](agent/README.md). Apply the Photon migration to the website's database and configure the website's Photon settings plus `SUPABASE_SERVICE_ROLE_KEY`. The agent requires matching project/token settings, its Spectrum project secret and the reachable website URL. Code being present does not indicate a live line or confirmed delivery.

@@ -26,9 +26,14 @@ export function safeEqual(a: string, b: string): boolean {
 /** Returns null when authorized, or a Response to send back. */
 export function checkAgentAuth(request: Request): Response | null {
   const expected = process.env["PHOTON_AGENT_TOKEN"];
-  if (!expected) return Response.json({ status: "unconfigured", error: "PHOTON_AGENT_TOKEN is not set" }, { status: 503 });
+  if (!expected)
+    return Response.json(
+      { status: "unconfigured", error: "PHOTON_AGENT_TOKEN is not set" },
+      { status: 503 },
+    );
   const got = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-  if (!got || !safeEqual(got, expected)) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!got || !safeEqual(got, expected))
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   return null;
 }
 

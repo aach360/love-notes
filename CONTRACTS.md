@@ -1,37 +1,15 @@
-# PulseMatch contracts
+# UNCover contracts
 
-All models live in `src/shared/types.ts` (single source of truth). `T | null` = "source didn't say" — never invent values.
+Shared models live in `src/shared/types.ts`. Null means the source did not provide a value.
 
-## Models
-- **PulseEvent** — required: `id`, `source`, `sourceEventId`, `title`, `startsAt` (ISO w/ offset), `timezone`, `categories[]`, `tags[]`, `status`, `lastFetchedAt`, `isDemo`. Nullable: `sourceUrl`, `description` (plain text), `endsAt`, `location`, `organizer`, `imageUrl`, `costAmount` (0 = confirmed free), `costText`, `eligibility`. Optional AI extras: `aiSummary`, `aiTags`.
-- Stable id: `heellife:<id>` / `demo:<id>`. Dedupe key: source family + `sourceEventId` (`src/modules/ingestion/store.ts#dedupeKey`).
-- **Swipe** `{eventId, direction: "like"|"pass", at}` · **SavedEvent** `{eventId, savedAt, event}` · **PlanItem** `{eventId, addedAt, event}` · **UserPreferences** `{weights, likeCounts, remindersOptIn}`.
+- `PulseEvent` holds source facts and deterministic taxonomy labels with source-text evidence.
+- `listEvents()` reads persisted snapshots; `refreshImport({token})` requires `ADMIN_IMPORT_TOKEN` and refreshes all independent source adapters.
+- `getRecommendations()` applies date/category/cost filters, excludes swiped/planned events, then uses fixed weights, timing and category variety. `frozenId` preserves the visible card across refreshes when it remains eligible.
+- `recordSwipe(event, direction)` adjusts local topic/category weights; a like saves the event. Undo restores the previous user state.
+- `UserStateStorage` owns device persistence. `CloudSync` replaces state on account load and debounces writes to the user's RLS-owned `user_app_state` row.
+- `getPlan()` orders selected events and flags overlaps. Client-side `ics.ts` exports saved/planned events.
+- Clubs use hashed anonymous device tokens and server functions for membership and chat access; tables are not publicly readable.
+- `src/test/fixtures/demo-events.ts` contains test fixtures. The production feed never shows them.
 
-## Services
-| Function | Where | Input → Output |
-|---|---|---|
-| `listEvents()` | `modules/ingestion/events.functions.ts` (server fn) | → `EventFeed {events, origin, fetchedAt, warnings}` upcoming, deduped, non-ended |
-| `refreshImport({token})` | same (server fn, protected by `ADMIN_IMPORT_TOKEN`) | → `{ok, result}` or `{ok:false, error}` |
-| `SourceAdapter.fetchEvents({now, fetchedAt})` | `modules/ingestion/adapters.ts` | → `PulseEvent[]` (throw on failure → next adapter) |
-| `enrichWithGemini({title, description})` | `modules/ingestion/gemini.ts` (server) | → `{status:"ok", data:{summary,tags}}` / `unconfigured` / `error` |
-| `createEnrichmentCache().run(events, enrichFn)` / `.apply(events)` | `modules/ingestion/enrichment.ts` (server) | writes only `aiSummary`/`aiTags`; called by `forceImport` (admin), applied by `getFeed` |
-| `recordSwipe(event, dir)` | `modules/recommendations/UserStateProvider.tsx` | updates swipes + prefs; like also saves |
-| `getRecommendations({events, swipes, prefs, filters, now?})` | `modules/recommendations/ranking.ts` | → `RankedEvent[]` (filters first, swiped excluded) |
-| `getSavedEvents` | `useUserState().state.saved` | → `SavedEvent[]` |
-| `getPlan(items)` | `modules/plan/plan.ts` | → chronological `PlanEntry[]` with `overlapsWith` |
-| `askAssistant(question, events, now?)` | `modules/assistant/assistant.ts` | → `{text, events (with sourceUrl), interpretation}` |
-| `generatePlanAudio({text})` | `modules/plan/audio.functions.ts` (server fn) | → `{status:"ok", audioBase64, mime}` / `unconfigured` / `error` |
-| `UserStateStorage.load/save/clear` | `modules/recommendations/storage.ts` | local demo session; swap for authed storage |
-
-## Fixtures
-`src/fixtures/demo-events.ts#buildDemoEvents(now)` — 12 demo events (relative dates, `isDemo: true`). Demo events are only shown when live sources fail, never mixed with real ones.
-
-## Photon messaging
-
-`src/shared/types.ts` defines `PhotonContact`, `PhotonJob`, `PhotonReminder`, `PhotonInbound`, `PhotonDelivery`, `PhotonConnection`, and `PhotonAccountAction`.
-
-- `getPhotonConnection` / `createPhotonLink` / `updatePhotonConnection` are authenticated server functions. The user ID comes from Supabase auth.
-- `/api/public/agent/inbound` accepts a bearer-authenticated direct-message envelope including project, provider message, conversation, sender, and line IDs. It commits effects and a reply atomically; the agent does not send the returned HTTP response as a text.
-- `/api/public/agent/outbox?projectId=...` leases one message. POST to the same endpoint performs the final `sending` gate or records `sent`, `unknown`, or `cancelled` using the lease token. `sent` is provider acceptance, not delivery.
-- `photon_reminders` and `photon_contacts` own server-side reminder consent. The legacy local `prefs.remindersOptIn` field does not authorize real messaging.
-- Apply the Photon migration before deploying the new agent/site pair. The old cursor protocol is retired.
+- Photon uses bearer-authenticated `/api/public/agent/inbound` and `/api/public/agent/outbox` routes. Database RPCs atomically commit inbound effects, lease sends and enforce consent. The separate agent performs a final send check, submits to Spectrum, and acknowledges acceptance or unknown outcome. Timeout outcomes are never automatically retried.
+- `searchEvents()` answers text queries using keyword/date matching on imported listings only.

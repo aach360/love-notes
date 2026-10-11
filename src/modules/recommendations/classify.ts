@@ -9,9 +9,7 @@ import { BENEFITS, FORMATS, TOPICS, TAXONOMY_VERSION, canonicalTopic } from "@/s
  * slice of source text that supported it — so classifications stay auditable
  * and never invent facts. An empty topic set is a valid, honest result.
  *
- * Deterministic and conservative: this is the fallback that always runs, and
- * it also validates AI-suggested topics (the AI's evidence passage must occur
- * in the source text and match a known synonym).
+ * Deterministic keyword matching against the source text.
  */
 
 export interface Classification {
@@ -57,7 +55,10 @@ function isSupported(text: string, evidence: string): boolean {
   return true;
 }
 
-function matchAll(text: string, defs: { id: string; synonyms: string[] }[]): { ids: string[]; evidence: Record<string, string> } {
+function matchAll(
+  text: string,
+  defs: { id: string; synonyms: string[] }[],
+): { ids: string[]; evidence: Record<string, string> } {
   const ids: string[] = [];
   const evidence: Record<string, string> = {};
   for (const d of defs) {
@@ -78,16 +79,18 @@ function matchAll(text: string, defs: { id: string; synonyms: string[] }[]): { i
  * description adds longer-tail topics. Source categories are consulted only as a
  * weak hint through canonicalTopic — vague labels like "Community Building" map to nothing.
  */
-export function classifyEvent(e: Pick<PulseEvent, "title" | "description" | "categories" | "tags" | "aiTags">): Classification {
+export function classifyEvent(
+  e: Pick<PulseEvent, "title" | "description" | "categories" | "tags">,
+): Classification {
   const text = `${e.title}\n${e.description ?? ""}`;
   const topics = matchAll(text, TOPICS);
   const formats = matchAll(text, FORMATS);
   const benefits = matchAll(text, BENEFITS);
 
-  // Normalize source/AI tags into canonical topics only when the tag is also visible in
+  // Normalize source tags into canonical topics only when the tag is also visible in
   // the event's own text — a tag the listing never mentions (e.g. "basketball" on a
   // department meeting) is rejected as unsupported.
-  for (const raw of [...e.tags, ...(e.aiTags ?? [])]) {
+  for (const raw of e.tags) {
     const id = canonicalTopic(raw);
     if (id && !topics.ids.includes(id)) {
       const ev = findEvidence(text, raw.trim());
@@ -98,27 +101,21 @@ export function classifyEvent(e: Pick<PulseEvent, "title" | "description" | "cat
     }
   }
 
-  return { version: TAXONOMY_VERSION, topics: topics.ids, formats: formats.ids, benefits: benefits.ids, evidence: topics.evidence };
-}
-
-/** Validate an AI-suggested topic: it must be a known topic AND have evidence in the source text. */
-export function validateAiTopic(topicId: string, claimedEvidence: string, e: Pick<PulseEvent, "title" | "description">): string | null {
-  const def = TOPICS.find((t) => t.id === topicId);
-  if (!def) return null;
-  const text = `${e.title}\n${e.description ?? ""}`;
-  // The claimed passage must actually occur in the source…
-  const ev = findEvidence(text, claimedEvidence);
-  if (!ev || !isSupported(text, ev)) return null;
-  // …and must genuinely match one of the topic's synonyms.
-  for (const syn of def.synonyms) {
-    const m = findEvidence(ev, syn);
-    if (m) return ev;
-  }
-  return null;
+  return {
+    version: TAXONOMY_VERSION,
+    topics: topics.ids,
+    formats: formats.ids,
+    benefits: benefits.ids,
+    evidence: topics.evidence,
+  };
 }
 
 /** Apply a fresh classification to an event (additive fields; source facts untouched). */
-export function withClassification<T extends Pick<PulseEvent, "title" | "description" | "categories" | "tags" | "aiTags">>(e: T): T & {
+export function withClassification<
+  T extends Pick<PulseEvent, "title" | "description" | "categories" | "tags">,
+>(
+  e: T,
+): T & {
   topics: string[];
   formats: string[];
   benefits: string[];
@@ -126,5 +123,12 @@ export function withClassification<T extends Pick<PulseEvent, "title" | "descrip
   taxonomyVersion: string;
 } {
   const c = classifyEvent(e);
-  return { ...e, topics: c.topics, formats: c.formats, benefits: c.benefits, topicEvidence: c.evidence, taxonomyVersion: c.version };
+  return {
+    ...e,
+    topics: c.topics,
+    formats: c.formats,
+    benefits: c.benefits,
+    topicEvidence: c.evidence,
+    taxonomyVersion: c.version,
+  };
 }

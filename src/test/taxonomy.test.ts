@@ -1,20 +1,40 @@
 import { describe, expect, it } from "vitest";
 import type { PulseEvent } from "@/shared/types";
 import { TAXONOMY_VERSION, TOPICS, canonicalTopic } from "@/shared/taxonomy";
-import { classifyEvent, validateAiTopic, withClassification } from "@/modules/recommendations/classify";
+import { classifyEvent, withClassification } from "@/modules/recommendations/classify";
 import { featureKeys, keyLabel } from "@/modules/recommendations/ranking";
-import { rankHybrid } from "@/modules/recommendations/engine";
-import { applyFilters, emptyPreferences } from "@/modules/recommendations/ranking";
+import { getRecommendations, emptyPreferences } from "@/modules/recommendations/ranking";
 import { normalizeUserState, emptyUserState } from "@/modules/recommendations/storage";
 
 const now = new Date("2026-10-12T14:00:00Z");
 
 function ev(id: string, title: string, extra: Partial<PulseEvent> = {}): PulseEvent {
   return {
-    id, source: "unc-calendar", sourceEventId: id, sourceOccurrenceId: null, sourceUrl: null, title, description: null,
-    startsAt: new Date(now.getTime() + 30 * 3_600_000).toISOString(), endsAt: null, allDay: false, timezone: "America/New_York",
-    location: null, organizer: null, hosts: [], imageUrl: null, categories: [], tags: [], costAmount: null, costText: null,
-    eligibility: null, status: "scheduled", sourceStatus: null, lastFetchedAt: now.toISOString(), isDemo: false, ...extra,
+    id,
+    source: "unc-calendar",
+    sourceEventId: id,
+    sourceOccurrenceId: null,
+    sourceUrl: null,
+    title,
+    description: null,
+    startsAt: new Date(now.getTime() + 30 * 3_600_000).toISOString(),
+    endsAt: null,
+    allDay: false,
+    timezone: "America/New_York",
+    location: null,
+    organizer: null,
+    hosts: [],
+    imageUrl: null,
+    categories: [],
+    tags: [],
+    costAmount: null,
+    costText: null,
+    eligibility: null,
+    status: "scheduled",
+    sourceStatus: null,
+    lastFetchedAt: now.toISOString(),
+    isDemo: false,
+    ...extra,
   } as PulseEvent;
 }
 
@@ -27,7 +47,9 @@ describe("taxonomy classification", () => {
   });
 
   it("classifies from content and records evidence", () => {
-    const c = classifyEvent(ev("1", "Jazz Ensemble Concert", { description: "Live music in Memorial Hall." }));
+    const c = classifyEvent(
+      ev("1", "Jazz Ensemble Concert", { description: "Live music in Memorial Hall." }),
+    );
     expect(c.topics).toContain("live-music");
     expect(c.evidence["live-music"]).toBeTruthy();
     expect(c.version).toBe(TAXONOMY_VERSION);
@@ -35,7 +57,9 @@ describe("taxonomy classification", () => {
 
   it("rejects tags that are not supported by the text", () => {
     // Source claims a topic but nothing in title/description supports it.
-    const c = classifyEvent(ev("1", "Monthly department meeting", { tags: ["basketball", "concert"] }));
+    const c = classifyEvent(
+      ev("1", "Monthly department meeting", { tags: ["basketball", "concert"] }),
+    );
     expect(c.topics).not.toContain("basketball");
     expect(c.topics).not.toContain("live-music");
   });
@@ -51,23 +75,20 @@ describe("taxonomy classification", () => {
     expect(keys.filter((k) => k.startsWith("cat:")).length).toBeLessThanOrEqual(1);
     expect(keyLabel("topic:live-music")).toBe("Live music");
   });
-
-  it("validates AI-claimed topics against visible evidence", () => {
-    const e = ev("1", "Coding workshop for beginners");
-    expect(validateAiTopic("computer-science", "Coding workshop", e)).toBeTruthy();
-    expect(validateAiTopic("basketball", "nothing about sports here", e)).toBeNull();
-  });
 });
 
 describe("cold-start interests prior", () => {
   it("ranks interest-matching events higher before any swipes", () => {
     const music = withClassification(ev("m", "Jazz night on the quad"));
     const other = withClassification(ev("o", "Graduate thesis defense"));
-    const prefs = { ...emptyPreferences(), onboarding: { interests: ["live-music"], completedAt: now.toISOString() } };
+    const prefs = {
+      ...emptyPreferences(),
+      weights: { "topic:live-music": 1.5 },
+      onboarding: { interests: ["live-music"], completedAt: now.toISOString() },
+    };
     const filters = { date: "any" as const, category: null, confirmedFreeOnly: false };
-    const ranked = rankHybrid({ events: [other, music], swipes: [], prefs, filters, applyFilters, vectors: {}, now });
+    const ranked = getRecommendations({ events: [other, music], swipes: [], prefs, filters, now });
     expect(ranked[0]!.event.id).toBe("m");
-    expect(ranked[0]!.breakdown?.reasons).toContain("Matches the interests you picked");
   });
 
   it("stores the prior in weights without fabricating swipes", () => {
@@ -86,7 +107,10 @@ describe("account persistence boundaries", () => {
   it("keeps onboarding data through normalize round-trips (jsonb shape)", () => {
     const s = normalizeUserState({
       ...emptyUserState(),
-      prefs: { ...emptyUserState().prefs, onboarding: { intent: "hobbies", interests: ["art"], major: "CS", year: "Junior" } },
+      prefs: {
+        ...emptyUserState().prefs,
+        onboarding: { intent: "hobbies", interests: ["art"], major: "CS", year: "Junior" },
+      },
     });
     expect(s.prefs.onboarding?.major).toBe("CS");
   });

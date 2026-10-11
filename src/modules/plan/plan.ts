@@ -1,5 +1,4 @@
 import type { PlanItem } from "@/shared/types";
-import { formatDayHeading, formatTime } from "@/shared/time";
 
 export interface PlanEntry extends PlanItem {
   overlapsWith: string[];
@@ -24,15 +23,4 @@ export function getPlan(items: PlanItem[]): PlanEntry[] {
       .map((o) => o.eventId);
     return { ...item, overlapsWith };
   });
-}
-
-/** Deterministic narration built ONLY from stored fields. */
-export function planNarration(items: PlanItem[]): string {
-  if (!items.length) return "Your plan is empty.";
-  const lines = getPlan(items).map((p) => {
-    const e = p.event;
-    const where = e.location ? ` at ${e.location}` : "";
-    return `${formatDayHeading(e.startsAt)}, ${e.allDay ? "all day" : formatTime(e.startsAt)}: ${e.title}${where}.`;
-  });
-  return `Here is your UNCover plan. ${lines.join(" ")}`;
 }

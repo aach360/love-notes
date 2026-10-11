@@ -6,10 +6,29 @@
  */
 
 /** "heellife-json" is retained for old saved snapshots only; the default Heel Life transport is RSS. */
-export type EventSource = "heellife-json" | "heellife-rss" | "unc-calendar" | "carrboro" | "ticketmaster" | "ackland" | "morehead" | "unc-libraries" | "orange-county" | "demo" | "submission";
+export type EventSource =
+  | "heellife-json"
+  | "heellife-rss"
+  | "unc-calendar"
+  | "carrboro"
+  | "ticketmaster"
+  | "ackland"
+  | "morehead"
+  | "unc-libraries"
+  | "orange-county"
+  | "demo"
+  | "submission";
 
 /** Registry ID for a live source (Heel Life JSON/RSS are transports of one source). */
-export type SourceId = "heellife" | "unc-calendar" | "carrboro" | "ticketmaster" | "ackland" | "morehead" | "unc-libraries" | "orange-county";
+export type SourceId =
+  | "heellife"
+  | "unc-calendar"
+  | "carrboro"
+  | "ticketmaster"
+  | "ackland"
+  | "morehead"
+  | "unc-libraries"
+  | "orange-county";
 
 export type EventStatus = "scheduled" | "cancelled" | "unknown";
 
@@ -56,9 +75,6 @@ export interface PulseEvent {
   hosts?: string[];
   /** Raw source status string, kept for audit. */
   sourceStatus?: string | null;
-  /** Optional AI enrichment (Gemini). Never overrides the facts above. */
-  aiSummary?: string | null;
-  aiTags?: string[];
   /** Classified interests from the shared taxonomy (see shared/taxonomy.ts). Generated labels, not source facts. */
   topics?: string[];
   formats?: string[];
@@ -77,8 +93,6 @@ export interface Swipe {
   at: string;
   /** Snapshot kept so the recommender can learn from events after they leave the live feed. */
   event?: PulseEvent;
-  /** True when the card was shown as an exploratory pick ("Something new to try"). */
-  exploratory?: boolean;
 }
 
 export interface SavedEvent {
@@ -100,8 +114,6 @@ export interface UserPreferences {
   /** Count of LIKES per key — used only for honest "Because you liked…" explanations. */
   likeCounts: Record<string, number>;
   remindersOptIn: boolean;
-  /** Per-user LinUCB state (see recommendations/bandit.ts). Absent = cold start. */
-  bandit?: BanditState;
   /** Onboarding answers. Interests are taxonomy topic IDs used as an explicit cold-start prior. */
   onboarding?: OnboardingProfile;
 }
@@ -114,31 +126,6 @@ export interface OnboardingProfile {
   major?: string;
   year?: string;
   completedAt?: string;
-}
-
-/** Ridge-regression sufficient statistics for the contextual bandit. A is d×d row-major. */
-export interface BanditState {
-  version: string;
-  d: number;
-  A: number[];
-  b: number[];
-  n: number;
-}
-
-/** Score contributions behind a recommendation (diagnostics + "Why this event?"). */
-export interface RankBreakdown {
-  mode: "semantic" | "tag-fallback";
-  semantic: number;
-  predicted: number;
-  exploration: number;
-  uncertainty: number;
-  time: number;
-  diversityPenalty: number;
-  /** Chosen by the exploration slot policy; its uncertainty bonus is then not added to the score again. */
-  exploratory?: boolean;
-  reasons: string[];
-  /** Feature vector shown to the bandit; reused verbatim when the swipe arrives. */
-  features: number[];
 }
 
 export type DateFilter = "any" | "today" | "tomorrow" | "weekend" | "week";
@@ -170,7 +157,7 @@ export interface SourceStatus {
 
 export interface EventFeed {
   events: PulseEvent[];
-  /** "live" = one or more real sources; "demo" = every real source failed. Never mixed. */
+  /** "live" = a usable source snapshot; otherwise the feed is empty and unavailable. */
   origin: "live" | "unavailable";
   fetchedAt: string | null;
   warnings: string[];
@@ -184,7 +171,6 @@ export interface RankedEvent {
   score: number;
   /** Only present when backed by real like history. */
   reason: string | null;
-  breakdown?: RankBreakdown;
 }
 
 export const DISPLAY_TZ = "America/New_York";
@@ -222,41 +208,92 @@ export interface ClubMessage {
 
 /* ---------------- Photon messaging ---------------- */
 export interface PhotonContact {
-  id: string; project_id: string; sender: string; space_id: string; line_address: string;
-  user_id: string | null; pending_user_id: string | null; pending_until: string | null;
-  reminders_enabled: boolean; lead_minutes: number; suppressed: boolean; created_at: string; last_inbound_at: string;
+  id: string;
+  project_id: string;
+  sender: string;
+  space_id: string;
+  line_address: string;
+  user_id: string | null;
+  pending_user_id: string | null;
+  pending_until: string | null;
+  reminders_enabled: boolean;
+  lead_minutes: number;
+  suppressed: boolean;
+  created_at: string;
+  last_inbound_at: string;
 }
 export interface PhotonJob {
-  id: string; dedupe_key: string; contact_id: string;
-  kind: 'reply' | 'club' | 'alert' | 'reminder'; body: string;
-  event_id: string | null; event_start: string | null; lead_minutes: number | null;
-  plan_derived: boolean; state: 'queued' | 'leased' | 'sending' | 'sent' | 'unknown' | 'cancelled' | 'failed';
-  created_at: string; expires_at: string; lease_token: string | null; lease_until: string | null;
-  provider_message_id: string | null; result_detail: string | null;
+  id: string;
+  dedupe_key: string;
+  contact_id: string;
+  kind: "reply" | "club" | "alert" | "reminder";
+  body: string;
+  event_id: string | null;
+  event_start: string | null;
+  lead_minutes: number | null;
+  plan_derived: boolean;
+  state: "queued" | "leased" | "sending" | "sent" | "unknown" | "cancelled" | "failed";
+  created_at: string;
+  expires_at: string;
+  lease_token: string | null;
+  lease_until: string | null;
+  provider_message_id: string | null;
+  result_detail: string | null;
 }
-export interface PhotonReminder { contact_id: string; event_id: string; lead_minutes: number; active: boolean }
+export interface PhotonReminder {
+  contact_id: string;
+  event_id: string;
+  lead_minutes: number;
+  active: boolean;
+}
 export interface PhotonConnection {
-  status: 'unconfigured' | 'offline' | 'online' | 'unavailable';
+  status: "unconfigured" | "offline" | "online" | "unavailable";
   botAddress: string | null;
-  link: { id: string; sender: string; pending: boolean; remindersEnabled: boolean; leadMinutes: number; suppressed: boolean } | null;
+  link: {
+    id: string;
+    sender: string;
+    pending: boolean;
+    remindersEnabled: boolean;
+    leadMinutes: number;
+    suppressed: boolean;
+  } | null;
   unknownDeliveries: number;
 }
 export interface PhotonInbound {
-  projectId: string; messageId: string; sender: string; spaceId: string; lineAddress: string; text: string;
+  projectId: string;
+  messageId: string;
+  sender: string;
+  spaceId: string;
+  lineAddress: string;
+  text: string;
 }
 export interface PhotonDelivery {
-  id: string; lease: string; spaceId: string; lineAddress: string; body: string;
+  id: string;
+  lease: string;
+  spaceId: string;
+  lineAddress: string;
+  body: string;
 }
 export type PhotonCommand =
-  | { command: 'link'; code: string }
-  | { command: 'remind'; eventId: string; leadMinutes: number }
-  | { command: 'cancel'; eventId: string }
-  | { command: 'join'; clubCode: string; displayName: string }
-  | { command: 'club'; clubCode: string; clubBody: string }
-  | { command: 'ask'; question: string }
-  | { command: 'help' | 'plan' | 'stop' | 'start' | 'reminders_on' | 'reminders_off' | 'alerts_on' | 'alerts_off' };
+  | { command: "link"; code: string }
+  | { command: "remind"; eventId: string; leadMinutes: number }
+  | { command: "cancel"; eventId: string }
+  | { command: "join"; clubCode: string; displayName: string }
+  | { command: "club"; clubCode: string; clubBody: string }
+  | { command: "ask"; question: string }
+  | {
+      command:
+        | "help"
+        | "plan"
+        | "stop"
+        | "start"
+        | "reminders_on"
+        | "reminders_off"
+        | "alerts_on"
+        | "alerts_off";
+    };
 
 export type PhotonAccountAction =
-  | {action:'confirm';contactId:string}
-  | {action:'disconnect'}
-  | {action:'preferences';enabled:boolean;leadMinutes:15|30|60};
+  | { action: "confirm"; contactId: string }
+  | { action: "disconnect" }
+  | { action: "preferences"; enabled: boolean; leadMinutes: 15 | 30 | 60 };

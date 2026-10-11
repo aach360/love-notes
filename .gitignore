@@ -16,10 +16,10 @@ dist-ssr
 .nitro
 *.local
 
-# Local iMessage agent credentials
-agent/.env
-agent/.env.*
-!agent/.env.example
+# Local credentials
+.env
+.env.*
+!.env.example
 
 # Wrangler / Cloudflare
 .wrangler/
@@ -36,5 +36,8 @@ agent/.env.*
 *.sln
 *.sw?
 
-# Photon durable local journal (contains message content)
+# Private Photon credentials and message journal
+agent/.env
+agent/.env.*
+!agent/.env.example
 agent/.state/

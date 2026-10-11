@@ -153,7 +153,7 @@ export async function createCode(userId: string) {
 export async function receive(input: PhotonInbound) {
   requireProject(input.projectId);
   const db = await messagingDb();
-  // Avoid repeated AI work; SQL repeats the check transactionally for side effects.
+  // Avoid repeated event lookup work; SQL repeats the check transactionally for side effects.
   if (
     checked(
       await db
@@ -187,8 +187,8 @@ export async function receive(input: PhotonInbound) {
   if (cmd.command === "link") payload["codeHash"] = await sha256(cmd.code);
   if (cmd.command === "help") payload["reply"] = HELP;
   if (cmd.command === "ask" && !contact?.suppressed) {
-    const { answerFromFeed } = await import("../answer.server");
-    const answer = await answerFromFeed(cmd.question.slice(0, 300));
+    const { searchEvents } = await import("./event-search");
+    const answer = searchEvents(cmd.question.slice(0, 300), await latestEvents());
     payload["reply"] = [
       answer.text,
       ...answer.events

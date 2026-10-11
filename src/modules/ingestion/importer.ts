@@ -7,13 +7,21 @@ import { ticketmasterAdapter } from "./ticketmaster";
 import { acklandAdapter, moreheadAdapter } from "./tribe";
 import { orangeCountyAdapter, uncLibrariesAdapter } from "./ics-feeds";
 import { dedupeKey } from "./store";
-import { createEnrichmentCache } from "./enrichment";
 import { withClassification } from "@/modules/recommendations/classify";
 import { TAXONOMY_VERSION } from "@/shared/taxonomy";
 import { loadSnapshots, saveSnapshot } from "./snapshot-store";
 
 /** Source registry. All run independently; one failing never erases the others. */
-export const ADAPTERS: SourceAdapter[] = [heelLifeAdapter, uncCalendarAdapter, carrboroAdapter, acklandAdapter, moreheadAdapter, uncLibrariesAdapter, orangeCountyAdapter, ticketmasterAdapter];
+export const ADAPTERS: SourceAdapter[] = [
+  heelLifeAdapter,
+  uncCalendarAdapter,
+  carrboroAdapter,
+  acklandAdapter,
+  moreheadAdapter,
+  uncLibrariesAdapter,
+  orangeCountyAdapter,
+  ticketmasterAdapter,
+];
 
 /**
  * Upstream ingestion runs ONLY on the twice-weekly schedule (or a privileged manual
@@ -47,8 +55,23 @@ export interface Importer {
   refresh(force: boolean, now?: Date): Promise<void>;
 }
 
-export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { windowDays?: number; persist?: boolean } = {}): Importer {
-  const states = new Map<SourceId, SourceState>(adapters.map((a) => [a.id, { good: null, lastStatus: null, lastError: null, lastAttemptAt: null, lastSuccessAt: null, warnings: [] }]));
+export function createImporter(
+  adapters: SourceAdapter[] = ADAPTERS,
+  opts: { windowDays?: number; persist?: boolean } = {},
+): Importer {
+  const states = new Map<SourceId, SourceState>(
+    adapters.map((a) => [
+      a.id,
+      {
+        good: null,
+        lastStatus: null,
+        lastError: null,
+        lastAttemptAt: null,
+        lastSuccessAt: null,
+        warnings: [],
+      },
+    ]),
+  );
   const persist = opts.persist ?? true;
   let loadedAt = 0;
   let inFlight: Promise<void> | null = null;
@@ -68,7 +91,12 @@ export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { win
       st.lastAttemptAt = r.lastAttemptAt;
       st.lastSuccessAt = r.lastSuccessAt;
       if (r.fetchedAt && r.status === "ok") {
-        st.good = { events: r.events, fetchedAt: r.fetchedAt, complete: r.complete, skipped: r.skipped };
+        st.good = {
+          events: r.events,
+          fetchedAt: r.fetchedAt,
+          complete: r.complete,
+          skipped: r.skipped,
+        };
       }
     }
   }
@@ -88,7 +116,12 @@ export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { win
         for (const e of r.events) byId.set(dedupeKey(e), e);
         // Publish only after the source refresh completes; a failed later page
         // (complete=false) still replaced atomically as one snapshot, never per-page.
-        st.good = { events: [...byId.values()], fetchedAt, complete: r.complete, skipped: r.skipped };
+        st.good = {
+          events: [...byId.values()],
+          fetchedAt,
+          complete: r.complete,
+          skipped: r.skipped,
+        };
         st.lastSuccessAt = fetchedAt;
       }
       // On failure keep the last complete snapshot (st.good untouched).
@@ -161,17 +194,37 @@ export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { win
         complete: usable && snap ? snap.complete : false,
         stale: failed && usable,
         skipped: snap?.skipped ?? 0,
-        error: tooOld && snap ? `Snapshot older than 8 days; excluded until the next refresh.` : st.lastError,
+        error:
+          tooOld && snap
+            ? `Snapshot older than 8 days; excluded until the next refresh.`
+            : st.lastError,
       });
       warnings.push(...st.warnings);
-      if (tooOld && snap) warnings.push(`${a.id}: listings are over 8 days old and hidden until the next refresh.`);
-      else if (failed) warnings.push(usable ? `${a.id}: latest refresh failed; showing data from ${snap!.fetchedAt}.` : `${a.id}: unavailable.`);
+      if (tooOld && snap)
+        warnings.push(`${a.id}: listings are over 8 days old and hidden until the next refresh.`);
+      else if (failed)
+        warnings.push(
+          usable
+            ? `${a.id}: latest refresh failed; showing data from ${snap!.fetchedAt}.`
+            : `${a.id}: unavailable.`,
+        );
     }
 
     if (anyUsable) {
       const list = [...events.values()].sort((x, y) => x.startsAt.localeCompare(y.startsAt));
-      const freshest = [...states.values()].map((s) => s.good?.fetchedAt).filter(Boolean).sort().pop()!;
-      return { events: list, origin: "live", fetchedAt: freshest, warnings, sources, cancelledIds: [...cancelled] };
+      const freshest = [...states.values()]
+        .map((s) => s.good?.fetchedAt)
+        .filter(Boolean)
+        .sort()
+        .pop()!;
+      return {
+        events: list,
+        origin: "live",
+        fetchedAt: freshest,
+        warnings,
+        sources,
+        cancelledIds: [...cancelled],
+      };
     }
     // No demo fallback: an honest empty feed with source statuses.
     return {
@@ -188,8 +241,6 @@ export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { win
 }
 
 const shared = createImporter();
-/** In-memory AI enrichment cache (lost on restart; see enrichment.ts). */
-const enrichment = createEnrichmentCache();
 
 /** Cached read used by the app. Reads persisted snapshots only — never fetches publishers. */
 export async function getFeed(): Promise<EventFeed> {
@@ -197,16 +248,21 @@ export async function getFeed(): Promise<EventFeed> {
   if (f.origin !== "live") return f;
   // Deterministic taxonomy classification runs on every serve (cheap, no model);
   // stale classifications (old taxonomy version) are recomputed automatically.
-  const classified = f.events.map((e) => (e.taxonomyVersion === TAXONOMY_VERSION ? e : withClassification(e)));
-  return { ...f, events: enrichment.apply(classified) };
+  const classified = f.events.map((e) =>
+    e.taxonomyVersion === TAXONOMY_VERSION ? e : withClassification(e),
+  );
+  return { ...f, events: classified };
 }
 
 /** Privileged: callers must authorize first. Fetches publishers and publishes snapshots. */
 export async function forceImport() {
   await shared.refresh(true);
   const f = await shared.getFeed();
-  // Bounded enrichment inside the request (no detached background work).
-  const { enrichWithGemini } = await import("./gemini");
-  const ai = f.origin === "live" ? await enrichment.run(f.events, enrichWithGemini) : null;
-  return { origin: f.origin, fetchedAt: f.fetchedAt, warnings: f.warnings, total: f.events.length, sources: f.sources, ai };
+  return {
+    origin: f.origin,
+    fetchedAt: f.fetchedAt,
+    warnings: f.warnings,
+    total: f.events.length,
+    sources: f.sources,
+  };
 }

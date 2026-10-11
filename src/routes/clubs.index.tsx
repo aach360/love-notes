@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Camera, MessageCircle, Plus, Star, Users } from "lucide-react";
+import { MessageCircle, Plus, Star, Users } from "lucide-react";
 import { AeroButton, PageTitle, Panel } from "@/components/aero";
 import { StatePanel } from "@/components/StatePanel";
 import { createClub, joinClub, listClubs } from "@/modules/clubs/clubs.functions";
@@ -14,7 +14,11 @@ export const Route = createFileRoute("/clubs/")({
   head: () => ({
     meta: [
       { title: "Clubs — UNCover" },
-      { name: "description", content: "Star your UNC clubs and chat with members in one place instead of scattered group chats." },
+      {
+        name: "description",
+        content:
+          "Star your UNC clubs and chat with members in one place instead of scattered group chats.",
+      },
       { property: "og:title", content: "Clubs — UNCover" },
       { property: "og:description", content: "One home for every club chat at UNC." },
       { property: "og:type", content: "website" },
@@ -39,7 +43,8 @@ function ClubsPage() {
 
   const memberOf = new Set(memberships.map((m) => m.clubId));
   const list = [...(clubs.data ?? [])].sort((a, b) => {
-    const score = (id: string) => (memberOf.has(id) ? 2 : 0) + (device?.starred.includes(id) ? 1 : 0);
+    const score = (id: string) =>
+      (memberOf.has(id) ? 2 : 0) + (device?.starred.includes(id) ? 1 : 0);
     return score(b.id) - score(a.id);
   });
 
@@ -51,12 +56,21 @@ function ClubsPage() {
     setErr(null);
     try {
       if (mode === "join") {
-        const r = await join({ data: { code, displayName: name, deviceToken: device.deviceToken } });
+        const r = await join({
+          data: { code, displayName: name, deviceToken: device.deviceToken },
+        });
         if (!r.ok) return setErr(r.error);
         await refreshMemberships();
         navigate({ to: "/clubs/$clubId", params: { clubId: r.membership.clubId } });
       } else {
-        const m = await create({ data: { name: clubName, description: desc || null, displayName: name, deviceToken: device.deviceToken } });
+        const m = await create({
+          data: {
+            name: clubName,
+            description: desc || null,
+            displayName: name,
+            deviceToken: device.deviceToken,
+          },
+        });
         await refreshMemberships();
         navigate({ to: "/clubs/$clubId", params: { clubId: m.clubId } });
       }
@@ -69,14 +83,16 @@ function ClubsPage() {
 
   return (
     <div>
-      <PageTitle title="Clubs" subtitle="Star the clubs you follow. Members chat here instead of scattered group chats." />
-      <Link to="/scan" className="aero-btn aero-pearl inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold">
-        <Camera className="size-4" /> Scan a poster or club photo
-      </Link>
+      <PageTitle
+        title="Clubs"
+        subtitle="Star the clubs you follow. Members chat here instead of scattered group chats."
+      />
 
       <Panel className="mb-4 p-4">
         <div className="aero-solid rounded-2xl p-3">
-          <label className="text-xs font-bold text-navy" htmlFor="dn">Your display name</label>
+          <label className="text-xs font-bold text-navy" htmlFor="dn">
+            Your display name
+          </label>
           <input
             id="dn"
             value={name}
@@ -86,24 +102,65 @@ function ClubsPage() {
             className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
           />
           <div className="mt-3 flex flex-wrap gap-2">
-            <AeroButton tone={mode === "join" ? "grass" : "aqua"} className="px-4 py-1.5 text-sm" onClick={() => setMode(mode === "join" ? "none" : "join")}>
+            <AeroButton
+              tone={mode === "join" ? "grass" : "aqua"}
+              className="px-4 py-1.5 text-sm"
+              onClick={() => setMode(mode === "join" ? "none" : "join")}
+            >
               <Users className="size-4" /> Join with code
             </AeroButton>
-            <AeroButton tone={mode === "create" ? "grass" : "pearl"} className="px-4 py-1.5 text-sm" onClick={() => setMode(mode === "create" ? "none" : "create")}>
+            <AeroButton
+              tone={mode === "create" ? "grass" : "pearl"}
+              className="px-4 py-1.5 text-sm"
+              onClick={() => setMode(mode === "create" ? "none" : "create")}
+            >
               <Plus className="size-4" /> Start a club chat
             </AeroButton>
           </div>
           {mode === "join" && (
             <div className="mt-3 flex gap-2">
-              <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="6-letter code" className="flex-1 rounded-xl border border-border bg-background px-3 py-2 font-mono text-sm uppercase" />
-              <AeroButton tone="grass" disabled={busy || code.length !== 6} className="px-4 py-1.5 text-sm" onClick={submit}>Join</AeroButton>
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                maxLength={6}
+                placeholder="6-letter code"
+                className="flex-1 rounded-xl border border-border bg-background px-3 py-2 font-mono text-sm uppercase"
+              />
+              <AeroButton
+                tone="grass"
+                disabled={busy || code.length !== 6}
+                className="px-4 py-1.5 text-sm"
+                onClick={submit}
+              >
+                Join
+              </AeroButton>
             </div>
           )}
           {mode === "create" && (
             <div className="mt-3 grid gap-2">
-              <input value={clubName} onChange={(e) => setClubName(e.target.value)} maxLength={80} placeholder="Club name (match its Heel Life or calendar organizer name to see its events)" className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              <textarea value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={500} rows={2} placeholder="What's the club about? (optional)" className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              <AeroButton tone="grass" disabled={busy || clubName.trim().length < 2} className="justify-self-start px-4 py-1.5 text-sm" onClick={submit}>Create & get join code</AeroButton>
+              <input
+                value={clubName}
+                onChange={(e) => setClubName(e.target.value)}
+                maxLength={80}
+                placeholder="Club name (match its Heel Life or calendar organizer name to see its events)"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
+              />
+              <textarea
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                maxLength={500}
+                rows={2}
+                placeholder="What's the club about? (optional)"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
+              />
+              <AeroButton
+                tone="grass"
+                disabled={busy || clubName.trim().length < 2}
+                className="justify-self-start px-4 py-1.5 text-sm"
+                onClick={submit}
+              >
+                Create & get join code
+              </AeroButton>
             </div>
           )}
           {err && <p className="mt-2 text-xs font-bold text-destructive">{err}</p>}
@@ -133,14 +190,26 @@ function ClubsPage() {
                     </button>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-bold text-navy">{c.name}</h3>
-                      {c.description && <p className="line-clamp-2 text-xs text-muted-foreground">{c.description}</p>}
+                      {c.description && (
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
+                          {c.description}
+                        </p>
+                      )}
                       <p className="mt-1 text-xs font-semibold text-navy/70">
                         {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
-                        {member && <span className="ml-2 rounded-full bg-grass px-2 py-0.5 text-[10px] text-grass-foreground">You're a member</span>}
+                        {member && (
+                          <span className="ml-2 rounded-full bg-grass px-2 py-0.5 text-[10px] text-grass-foreground">
+                            You're a member
+                          </span>
+                        )}
                       </p>
                     </div>
                     {member && (
-                      <Link to="/clubs/$clubId" params={{ clubId: c.id }} className="aero-btn aero-aqua inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold">
+                      <Link
+                        to="/clubs/$clubId"
+                        params={{ clubId: c.id }}
+                        className="aero-btn aero-aqua inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold"
+                      >
                         <MessageCircle className="size-4" /> Chat
                       </Link>
                     )}
