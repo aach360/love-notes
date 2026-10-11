@@ -21,7 +21,7 @@ const SUGGESTIONS = ["What's happening this weekend?", "Find me something free",
 export function RamesesChat() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: feed } = useQuery(eventsQuery);
-  const { log, ask } = useAssistantChat();
+  const { log, pending, ask } = useAssistantChat();
   const { state, saveEvent } = useUserState();
 
   const [hovered, setHovered] = useState(false);
@@ -96,14 +96,9 @@ export function RamesesChat() {
 
   const send = (question: string) => {
     const text = question.trim();
-    if (!text || !feed || typing) return;
+    if (!text || !feed || pending) return;
     setQ("");
-    setTyping(true);
-    // Brief beat so the typing indicator reads as Rameses "thinking".
-    typeTimer.current = setTimeout(() => {
-      ask(text, feed.events);
-      setTyping(false);
-    }, 450);
+    ask(text);
   };
 
   const savedIds = new Set(state.saved.map((s) => s.eventId));
