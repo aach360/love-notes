@@ -194,7 +194,7 @@ export function MapView({ events, date, onDate }: Props) {
           <span className="h-1 w-10 rounded-full bg-navy/20" aria-hidden />
           <span className="text-xs font-semibold text-navy">{sheetOpen ? "Hide list" : `${visible.length} events — show list`}</span>
         </button>
-        <div className="max-h-[55dvh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+6rem)]">{list}</div>
+        <div hidden={!sheetOpen} className="max-h-[55dvh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+6rem)]">{list}</div>
       </div>
 
       <EventDetail event={detail} onClose={() => setDetail(null)} />

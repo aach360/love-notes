@@ -39,10 +39,9 @@ export default function LeafletMap({ groups, selectedKey, onSelect, onMoved, onF
     const m = L.map(el.current, { center: UNC_CENTER, zoom: 16, zoomControl: false, attributionControl: true });
     L.control.zoom({ position: "bottomright" }).addTo(m);
     let errors = 0;
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      subdomains: "abcd",
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     })
       .on("tileerror", () => { if (++errors === 8) cb.current.onFail(); })
       .addTo(m);
