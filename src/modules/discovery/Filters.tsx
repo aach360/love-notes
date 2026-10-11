@@ -14,11 +14,11 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <AeroButton
       type="button"
+      tone={active ? "aqua" : "pearl"}
       aria-pressed={active}
       onClick={onClick}
       className={cn(
         "min-h-11 shrink-0 rounded-xl px-3 py-1.5 text-xs font-semibold",
-        active ? "aero-btn aero-aqua" : "aero-btn aero-pearl",
       )}
     >
       {children}
