@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+
 import { useState } from "react";
 import { Bot, ExternalLink, Send, MessageCircle } from "lucide-react";
 import { eventsQuery } from "@/modules/ingestion/events.functions";
@@ -26,13 +27,12 @@ export const Route = createFileRoute("/assistant")({
 const SUGGESTIONS = ["What's happening tomorrow?", "Find free events this weekend", "Any events with free food today?", "Live music this week"];
 
 function Assistant() {
-  const { data: feed } = useSuspenseQuery(eventsQuery);
   const [q, setQ] = useState("");
   // Shared with the corner Rameses widget — same conversation everywhere.
-  const { log, ask: askShared } = useAssistantChat();
+  const { log, pending, ask: askShared } = useAssistantChat();
   const ask = (question: string) => {
     if (!question.trim()) return;
-    askShared(question, feed.events);
+    askShared(question);
     setQ("");
   };
 
