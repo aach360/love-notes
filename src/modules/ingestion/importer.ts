@@ -1,5 +1,4 @@
 import type { EventFeed, PulseEvent, SourceId, SourceStatus } from "@/shared/types";
-import { buildDemoEvents } from "@/fixtures/demo-events";
 import { isEligibleForDiscover } from "@/shared/time";
 import { heelLifeAdapter, type SourceAdapter } from "./adapters";
 import { uncCalendarAdapter } from "./unc-calendar";
@@ -173,11 +172,12 @@ export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { win
       const freshest = [...states.values()].map((s) => s.good?.fetchedAt).filter(Boolean).sort().pop()!;
       return { events: list, origin: "live", fetchedAt: freshest, warnings, sources, cancelledIds: [...cancelled] };
     }
+    // No demo fallback: an honest empty feed with source statuses.
     return {
-      events: buildDemoEvents(),
-      origin: "demo",
-      fetchedAt: now.toISOString(),
-      warnings: [...warnings, "Showing demo events — every live source failed."],
+      events: [],
+      origin: "unavailable",
+      fetchedAt: null,
+      warnings: [...warnings, "No live event sources are available yet. Run a refresh from Admin."],
       sources,
       cancelledIds: [],
     };

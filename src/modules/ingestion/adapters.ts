@@ -1,6 +1,6 @@
 import type { PulseEvent, SourceId } from "@/shared/types";
 import { htmlToText, decodeEntities } from "./sanitize";
-import { boundedJson, boundedText, safeUrl } from "./http";
+import { boundedJson, boundedText, safeUrl, sleep } from "./http";
 
 /**
  * Source adapter contract. Each adapter is isolated, validates its own payload and
@@ -48,14 +48,13 @@ export function cleanTag(s: string) {
   return decodeEntities(s).replace(/\s+/g, " ").trim().toLowerCase();
 }
 
-/* ---------------- Heel Life JSON (observed website endpoint — NOT registered) ----------------
- * heellife.unc.edu/robots.txt excludes /api/, and this is not a published contract.
- * Kept only so old saved snapshots and tests map consistently. Official JSON access needs
- * campus-issued Anthology Engage API credentials (not configured; do not guess its schema).
+/* ---------------- Heel Life JSON (undocumented website endpoint) ----------------
+ * Not a published contract: isolated here behind HeelLifeTransport so it can be swapped
+ * for official Engage API credentials later. Inspected response: { "@odata.count", value: [...] }.
  */
 
-interface HeelLifeJsonEvent {
-  id: string;
+export interface HeelLifeJsonEvent {
+  id: string | number;
   name: string;
   description?: string | null;
   location?: string | null;
@@ -63,6 +62,7 @@ interface HeelLifeJsonEvent {
   endsOn?: string | null;
   imagePath?: string | null;
   organizationName?: string | null;
+  organizationNames?: string[] | null;
   theme?: string | null;
   categoryNames?: string[] | null;
   benefitNames?: string[] | null;
@@ -70,31 +70,65 @@ interface HeelLifeJsonEvent {
   visibility?: string | null;
 }
 
-export function mapHeelLifeJson(e: HeelLifeJsonEvent, fetchedAt: string): PulseEvent {
-  const cat = themeToCategory(e.theme);
+export function mapHeelLifeJson(e: HeelLifeJsonEvent, fetchedAt: string): PulseEvent | null {
+  const id = String(e.id ?? "").trim();
+  const startsAt = parseDate(e.startsOn);
+  if (!/^\d+$/.test(id) || !e.name || !startsAt) return null;
+  const cat = themeToCategory(e.theme === "Unknown" ? null : e.theme);
   const tags = [...(e.categoryNames ?? []), ...(e.benefitNames ?? [])].map(cleanTag).filter(Boolean);
+  const hosts = [e.organizationName, ...(e.organizationNames ?? [])].map((h) => (h ? decodeEntities(h).trim() : "")).filter(Boolean);
+  const raw = (e.status ?? "").toLowerCase() || null;
   return {
-    id: `heellife:${e.id}`,
+    id: `heellife:${id}`,
     source: "heellife-json",
-    sourceEventId: String(e.id),
-    sourceUrl: `https://heellife.unc.edu/event/${e.id}`,
+    sourceEventId: id,
+    sourceOccurrenceId: null,
+    sourceUrl: `https://heellife.unc.edu/event/${id}`,
     title: decodeEntities(e.name).trim(),
     description: htmlToText(e.description),
-    startsAt: new Date(e.startsOn).toISOString(),
-    endsAt: e.endsOn ? new Date(e.endsOn).toISOString() : null,
+    startsAt,
+    endsAt: parseDate(e.endsOn ?? undefined),
+    allDay: false,
     timezone: "America/New_York",
-    location: e.location?.trim() || null,
-    organizer: e.organizationName?.trim() || null,
-    imageUrl: e.imagePath ? `https://se-images.campuslabs.com/clink/images/${e.imagePath}?preset=med-w` : null,
+    location: e.location?.trim() ? decodeEntities(e.location.trim()) : null,
+    organizer: hosts[0] ?? null,
+    hosts: Array.from(new Set(hosts)),
+    imageUrl: e.imagePath ? safeUrl(`https://se-images.campuslabs.com/clink/images/${encodeURIComponent(e.imagePath)}?preset=med-w`) : null,
     categories: cat ? [cat] : [],
     tags: Array.from(new Set(tags)),
     costAmount: null,
     costText: null,
     eligibility: null,
-    status: e.status === "Approved" ? "scheduled" : "unknown",
+    status: raw === "cancelled" || raw === "canceled" ? "cancelled" : raw === "approved" ? "scheduled" : "unknown",
+    sourceStatus: raw,
     lastFetchedAt: fetchedAt,
     isDemo: false,
   };
+}
+
+export const HEELLIFE_JSON_PAGE = 50;
+export const HEELLIFE_JSON_MAX_PAGES = 8;
+
+/** Conservative pagination: sequential pages, small page size, hard page cap, polite delay. */
+export async function fetchHeelLifeJson(ctx: AdapterContext, get: typeof boundedJson = boundedJson) {
+  const out: PulseEvent[] = [];
+  let skipped = 0;
+  let complete = false;
+  const endsAfter = ctx.now.toISOString().slice(0, 19);
+  for (let page = 0; page < HEELLIFE_JSON_MAX_PAGES; page++) {
+    const q = new URLSearchParams({ take: String(HEELLIFE_JSON_PAGE), skip: String(page * HEELLIFE_JSON_PAGE), orderByField: "endsOn", orderByDirection: "ascending", status: "Approved", endsAfter });
+    const body = await get<{ value?: unknown; "@odata.count"?: number }>(`https://heellife.unc.edu/api/discovery/event/search?${q}`, "heellife JSON");
+    if (!body || !Array.isArray(body.value)) throw new Error("heellife JSON: unexpected response shape (no value array)");
+    for (const raw of body.value as HeelLifeJsonEvent[]) {
+      if (raw?.visibility && raw.visibility !== "Public") { skipped++; continue; }
+      const e = mapHeelLifeJson(raw, ctx.fetchedAt);
+      if (e) out.push(e); else skipped++;
+    }
+    const total = typeof body["@odata.count"] === "number" ? body["@odata.count"] : null;
+    if (body.value.length < HEELLIFE_JSON_PAGE || (total !== null && (page + 1) * HEELLIFE_JSON_PAGE >= total)) { complete = true; break; }
+    await sleep(250);
+  }
+  return { events: out, skipped, complete };
 }
 
 /* ---------------- Heel Life RSS (default transport) ---------------- */
@@ -190,17 +224,41 @@ export function parseHeelLifeRss(xml: string, fetchedAt: string): { events: Puls
   return { events: out, skipped };
 }
 
-export const heelLifeAdapter: SourceAdapter = {
-  id: "heellife",
-  optional: false,
-  async fetch({ now, fetchedAt, windowDays }) {
-    const xml = await boundedText("https://heellife.unc.edu/events.rss", "heellife RSS", "application/rss+xml, application/xml");
-    const { events, skipped } = parseHeelLifeRss(xml, fetchedAt);
-    // Feed spans months; keep the discovery window locally.
-    const limit = now.getTime() + windowDays * 86_400_000;
-    return { status: "ok", events: events.filter((e) => Date.parse(e.startsAt) < limit), complete: true, skipped, warnings: [] };
-  },
-};
+export async function fetchHeelLifeRss(ctx: AdapterContext, getText: typeof boundedText = boundedText) {
+  const xml = await getText("https://heellife.unc.edu/events.rss", "heellife RSS", "application/rss+xml, application/xml");
+  return { ...parseHeelLifeRss(xml, ctx.fetchedAt), complete: true };
+}
+
+/** Replaceable transports, tried in order. JSON first; RSS is the fallback. */
+export interface HeelLifeTransport { name: string; run(ctx: AdapterContext): Promise<{ events: PulseEvent[]; skipped: number; complete: boolean }> }
+export const DEFAULT_HEELLIFE_TRANSPORTS: HeelLifeTransport[] = [
+  { name: "JSON", run: (c) => fetchHeelLifeJson(c) },
+  { name: "RSS", run: (c) => fetchHeelLifeRss(c) },
+];
+
+export function createHeelLifeAdapter(transports: HeelLifeTransport[] = DEFAULT_HEELLIFE_TRANSPORTS): SourceAdapter {
+  return {
+    id: "heellife",
+    optional: false,
+    async fetch(ctx) {
+      const warnings: string[] = [];
+      const errors: string[] = [];
+      for (const t of transports) {
+        try {
+          const r = await t.run(ctx);
+          const limit = ctx.now.getTime() + ctx.windowDays * 86_400_000;
+          if (errors.length) warnings.push(`heellife: ${errors.join("; ")} — used ${t.name} fallback.`);
+          return { status: "ok", events: r.events.filter((e) => Date.parse(e.startsAt) < limit), complete: r.complete, skipped: r.skipped, warnings };
+        } catch (err) {
+          errors.push(`${t.name} failed (${(err as Error).message.slice(0, 120)})`);
+        }
+      }
+      throw new Error(`heellife: ${errors.join("; ")}`);
+    },
+  };
+}
+
+export const heelLifeAdapter = createHeelLifeAdapter();
 
 // Re-export for callers that only need JSON fetch helpers.
 export { boundedJson };
