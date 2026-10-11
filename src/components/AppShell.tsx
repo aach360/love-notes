@@ -16,13 +16,39 @@ const BUBBLES = [
   { l: "8%", s: 28, d: "26s", delay: "0s", drift: "24px" },
   { l: "84%", s: 36, d: "30s", delay: "8s", drift: "-28px" },
   { l: "62%", s: 14, d: "22s", delay: "14s", drift: "-12px" },
+  { l: "26%", s: 18, d: "34s", delay: "5s", drift: "18px" },
+  { l: "46%", s: 44, d: "40s", delay: "18s", drift: "-22px" },
+  { l: "72%", s: 22, d: "28s", delay: "11s", drift: "14px" },
+  { l: "16%", s: 12, d: "20s", delay: "22s", drift: "-10px" },
+];
+
+const CLOUDS = [
+  { t: "6%", l: "-6%", w: "44%", h: "13%", dur: "78s", delay: "0s" },
+  { t: "18%", l: "58%", w: "36%", h: "10%", dur: "96s", delay: "12s" },
+  { t: "34%", l: "18%", w: "30%", h: "8%", dur: "84s", delay: "26s" },
 ];
 
 function Ambient() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="sky-water absolute inset-0" />
-      <div className="water-line absolute inset-x-0 bottom-0 h-[38vh]" />
+      <div className="aero-sky absolute inset-0" />
+      <div className="aero-sheen absolute inset-0" />
+      {CLOUDS.map((c, i) => (
+        <span
+          key={i}
+          className="aero-cloud"
+          style={{
+            top: c.t,
+            left: c.l,
+            width: c.w,
+            height: c.h,
+            ["--dur" as string]: c.dur,
+            ["--delay" as string]: c.delay,
+          }}
+        />
+      ))}
+      <div className="water-line absolute inset-x-0 bottom-0 h-[30vh]" />
+      <div className="aero-grass" />
       {BUBBLES.map((b, i) => (
         <span
           key={i}
