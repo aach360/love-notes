@@ -26,9 +26,9 @@
 - [x] Recommendation quality + onboarding brief: shared taxonomy (30 topics/10 formats/4 benefits), content-grounded classification with evidence, tag rejection when unsupported, taxonomy-dimension bandit (v2 features), cold-start interest prior, rotating AI-enrichment coverage, 4-step onboarding (intent/interests/background/cards), CloudSync audit (failed reads never overwrite, stale-save guard, visible save toasts, sign-out restores device state), 59 tests green, eval rerun
 
 - [x] Exploration cards ("Something new to try", ~15%, diagnostics, tests)
-- [ ] Twice-weekly refresh (Mon/Thu 4am ET) + Discover today-or-future only (brief: PulseMatch_-_twice-weekly_refresh)
+- [x] Twice-weekly refresh (Mon/Thu 4am ET) — runs against the published site
 - [x] Visual + motion redesign (brief: Give_PulseMatch_a_substantial_visual)
 - [ ] UNC event map in Discover (brief: PulseMatch_-_UNC_event_map_implementation_brief)
 - [x] Action dock redesign + swipe-up detail sheet + stable card identity during refresh (Aarav, 2026-10-11); browser checks and 20 regression tests pass
-- [ ] Heel Life JSON importer + RSS fallback, no demo, twice-weekly cron, centered detail sheet + swipe-down
-- [ ] Replace foot logo in filter sidebar with semi-transparent arrow; Rameses (uploaded) as chatbot identity
+- [x] Heel Life JSON importer + RSS fallback, no demo, twice-weekly cron, centered detail sheet + swipe-down
+- [x] Replace foot logo with translucent arrow; Rameses as chatbot identity
