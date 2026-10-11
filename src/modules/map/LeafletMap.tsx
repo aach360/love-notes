@@ -33,6 +33,7 @@ export default function LeafletMap({ groups, selectedKey, onSelect, onMoved, onF
   const cb = useRef({ onSelect, onMoved, onFail });
   cb.current = { onSelect, onMoved, onFail };
   const draw = useRef<() => void>(() => {});
+  const prog = useRef(false);
 
   useEffect(() => {
     if (!el.current) return;
@@ -47,9 +48,8 @@ export default function LeafletMap({ groups, selectedKey, onSelect, onMoved, onF
       .addTo(m);
     layer.current = L.layerGroup().addTo(m);
     meLayer.current = L.layerGroup().addTo(m);
-    let user = false;
-    m.on("movestart", () => { user = true; });
-    m.on("moveend", () => { draw.current(); if (user) cb.current.onMoved(toBounds(m)); });
+    // Programmatic flights (marker focus, Near me) shouldn't offer "Search this area".
+    m.on("moveend", () => { draw.current(); if (prog.current) prog.current = false; else cb.current.onMoved(toBounds(m)); });
     map.current = m;
     return () => { m.remove(); map.current = null; };
   }, []);
@@ -79,7 +79,7 @@ export default function LeafletMap({ groups, selectedKey, onSelect, onMoved, onF
       L.marker([lat, lng], { icon, keyboard: true, zIndexOffset: sel ? 1000 : 0 })
         .on("click", () => {
           if (single) cb.current.onSelect(single.place.key);
-          else m.flyTo([lat, lng], Math.min(19, m.getZoom() + 2), { duration: 0.4 });
+          else { prog.current = true; m.flyTo([lat, lng], Math.min(19, m.getZoom() + 2), { duration: 0.4 }); }
         })
         .addTo(lg);
     }
@@ -88,7 +88,7 @@ export default function LeafletMap({ groups, selectedKey, onSelect, onMoved, onF
   useEffect(() => { draw.current(); }, [groups, selectedKey]);
 
   useEffect(() => {
-    if (focus && map.current) map.current.flyTo([focus.lat, focus.lng], focus.zoom ?? Math.max(17, map.current.getZoom()), { duration: 0.45 });
+    if (focus && map.current) { prog.current = true; map.current.flyTo([focus.lat, focus.lng], focus.zoom ?? Math.max(17, map.current.getZoom()), { duration: 0.45 }); }
   }, [focus]);
 
   useEffect(() => {
