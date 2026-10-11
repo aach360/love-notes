@@ -29,7 +29,7 @@
 - [x] Exploration cards ("Something new to try", ~15%, diagnostics, tests)
 - [x] Twice-weekly refresh (Mon/Thu 4am ET) — runs against the published site
 - [x] Visual + motion redesign (brief: Give_PulseMatch_a_substantial_visual)
-- [ ] UNC event map in Discover (brief: PulseMatch_-_UNC_event_map_implementation_brief)
+- [x] UNCover rebrand (folded-U logo, favicon), calmer background, Cards/Map switch with OSM map, venue lookup, clustering, list sync, Near me, Search this area
 - [x] Action dock redesign + swipe-up detail sheet + stable card identity during refresh (Aarav, 2026-10-11); browser checks and 20 regression tests pass
 - [x] Heel Life JSON importer + RSS fallback, no demo, twice-weekly cron, centered detail sheet + swipe-down
 - [x] Replace foot logo with translucent arrow; Rameses as chatbot identity
