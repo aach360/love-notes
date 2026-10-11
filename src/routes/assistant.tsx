@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useState } from "react";
 import { Bot, ExternalLink, Send, MessageCircle } from "lucide-react";
@@ -76,6 +75,13 @@ function Assistant() {
             </Panel>
           </div>
         ))}
+        {pending && (
+          <div className="aero-solid inline-flex gap-1 rounded-3xl rounded-bl-md px-4 py-3" aria-label="Rameses is typing">
+            <span className="typing-dot" />
+            <span className="typing-dot" />
+            <span className="typing-dot" />
+          </div>
+        )}
       </div>
 
       <form
