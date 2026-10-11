@@ -171,8 +171,8 @@ export interface SourceStatus {
 export interface EventFeed {
   events: PulseEvent[];
   /** "live" = one or more real sources; "demo" = every real source failed. Never mixed. */
-  origin: "live" | "demo";
-  fetchedAt: string;
+  origin: "live" | "unavailable";
+  fetchedAt: string | null;
   warnings: string[];
   sources: SourceStatus[];
   /** IDs the sources explicitly marked cancelled — lets Saved/Plan flag them. */

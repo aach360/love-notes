@@ -63,18 +63,13 @@ function Discover() {
 
   return (
     <div className="space-y-3">
-      {feed.origin === "demo" && (
-        <div className="aero-panel rounded-2xl px-4 py-2 text-xs font-bold text-navy">
-          Showing demo events — none of the live calendars could be loaded right now.
-        </div>
-      )}
       <div className="flex justify-end"><TasteSidebar /></div>
       <FilterSidebar value={filters} onChange={setFilters} onClear={() => setFilters(DEFAULT_FILTERS)} categories={categories} />
 
       {!hydrated ? (
         <StatePanel icon={<Waves className="size-6 animate-pulse" />} title="Loading events…" />
       ) : feed.events.length === 0 ? (
-        <StatePanel icon={<Waves className="size-6" />} title="No upcoming events">Check back soon.</StatePanel>
+        <StatePanel icon={<Waves className="size-6" />} title="No upcoming events">{feed.origin === "unavailable" ? "Campus calendars haven't been imported yet — they refresh automatically twice a week." : "Check back soon."}</StatePanel>
       ) : filteredTotal === 0 ? (
         state.swipes.length > 0 && filters === DEFAULT_FILTERS ? (
           <StatePanel tone="grass" icon={<Sparkles className="size-6" />} title="You've seen everything!">

@@ -43,7 +43,7 @@ export const Route = createFileRoute("/api/public/agent/outbox")({
         const opted = phones.filter((p) => p.alerts_opt_in);
         if (opted.length) {
           const feed = await getFeed();
-          if (feed.origin !== "demo") {
+          if (feed.origin === "live") {
             const { data: sent } = await db.from("agent_alerts_sent").select("member_id, event_id").in("member_id", opted.map((p) => p.id));
             const done = new Set((sent ?? []).map((s) => `${s.member_id}|${s.event_id}`));
             const record: { member_id: string; event_id: string }[] = [];

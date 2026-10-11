@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import type { DateFilter, EventFilters } from "@/shared/types";
 import { cn } from "@/lib/utils";
-// Tar Heel foot logo (transparent PNG).
-import rameses from "@/assets/tarheel-foot.png";
 
 const DATES: { v: DateFilter; l: string }[] = [
   { v: "any", l: "Anytime" },
@@ -47,7 +45,7 @@ export function RamesesPeek({ open, onToggle }: { open: boolean; onToggle: () =>
         open ? "rameses-peek-open pointer-events-none" : "rameses-peek-closed",
       )}
     >
-      <img src={rameses} alt="" width={640} height={544} className={cn("rameses-img h-28 w-28 object-contain object-top drop-shadow-lg", open ? "rameses-up" : "rameses-down")} />
+      <span aria-hidden className={cn("flex size-12 items-center justify-center rounded-r-2xl border border-l-0 border-primary/30 bg-card/45 text-primary/80 shadow-md backdrop-blur-md transition-transform duration-200", open && "rotate-180")}><ChevronRight className="size-6" /></span>
     </button>
   );
 }

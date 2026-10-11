@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildIcs } from "@/modules/plan/ics";
 import { parseIcsFeed } from "@/modules/ingestion/ics-feeds";
-import { buildDemoEvents } from "@/fixtures/demo-events";
+import { buildDemoEvents } from "@/test/fixtures/demo-events";
 
 describe("calendar export", () => {
   it("round-trips through our own ICS parser and escapes text", () => {

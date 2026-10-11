@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createEnrichmentCache } from "@/modules/ingestion/enrichment";
 import { featureKeys } from "@/modules/recommendations/ranking";
-import { buildDemoEvents } from "@/fixtures/demo-events";
+import { buildDemoEvents } from "@/test/fixtures/demo-events";
 import type { PulseEvent } from "@/shared/types";
 
 const real = (): PulseEvent[] => buildDemoEvents().slice(0, 3).map((e, i) => ({ ...e, id: `t:${i}`, isDemo: false, tags: ["music"], costAmount: null, costText: null }));

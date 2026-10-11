@@ -77,9 +77,12 @@ function CalendarPage() {
 
       <Panel className="p-3 sm:p-5">
         <div className="mb-3 flex items-center justify-between">
-          <button type="button" aria-label="Previous month" onClick={() => shift(-1)} className="aero-btn aero-pearl rounded-full p-2"><ChevronLeft className="size-4" /></button>
-          <h2 className="font-display text-lg font-extrabold text-navy">{monthLabel}</h2>
-          <button type="button" aria-label="Next month" onClick={() => shift(1)} className="aero-btn aero-pearl rounded-full p-2"><ChevronRight className="size-4" /></button>
+          <button type="button" aria-label="Previous month" onClick={() => shift(-1)} className="aero-control flex size-11 items-center justify-center rounded-xl text-navy"><ChevronLeft className="size-4" /></button>
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-lg font-extrabold text-navy">{monthLabel}</h2>
+            <button type="button" onClick={() => { setYm({ y: Number(todayKey.slice(0, 4)), m: Number(todayKey.slice(5, 7)) - 1 }); setSelected(todayKey); }} className="aero-control min-h-11 rounded-xl px-3 text-xs font-bold text-navy">Today</button>
+          </div>
+          <button type="button" aria-label="Next month" onClick={() => shift(1)} className="aero-control flex size-11 items-center justify-center rounded-xl text-navy"><ChevronRight className="size-4" /></button>
         </div>
         <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold uppercase text-muted-foreground">
           {WEEKDAYS.map((d) => <div key={d}>{d}</div>)}
@@ -98,6 +101,7 @@ function CalendarPage() {
                 className={cn(
                   "flex min-h-14 flex-col items-start rounded-xl p-1 text-left text-xs transition-colors sm:min-h-20",
                   inMonth ? "bg-card/60" : "bg-card/20 text-muted-foreground",
+                  k < todayKey && "opacity-60",
                   selected === k && "ring-2 ring-primary",
                   k === todayKey && "font-extrabold text-primary",
                 )}
@@ -105,7 +109,7 @@ function CalendarPage() {
                 <span>{Number(k.slice(8))}</span>
                 <span className="mt-auto flex w-full flex-col gap-0.5">
                   {its.slice(0, 2).map((it) => (
-                    <span key={it.event.id} className={cn("hidden truncate rounded px-1 text-[10px] sm:block", it.planned ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground")}>{it.event.title}</span>
+                    <span key={it.event.id} className={cn("hidden truncate rounded px-1 text-[10px] sm:block", it.planned ? "bg-primary text-primary-foreground" : "bg-grass/25 text-navy")}>{it.event.title}</span>
                   ))}
                   {its.length > 0 && (
                     <span className="flex gap-0.5 sm:hidden">

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMemoryRepository } from "@/modules/ingestion/store";
 import { mapHeelLifeJson, parseHeelLifeRss } from "@/modules/ingestion/adapters";
-import { buildDemoEvents } from "@/fixtures/demo-events";
+import { buildDemoEvents } from "@/test/fixtures/demo-events";
 import { applySwipe, emptyPreferences, getRecommendations } from "@/modules/recommendations/ranking";
 import { createLocalStorage, emptyUserState } from "@/modules/recommendations/storage";
 import { getPlan } from "@/modules/plan/plan";
@@ -9,7 +9,7 @@ import type { PulseEvent } from "@/shared/types";
 
 const now = new Date("2026-10-10T16:00:00Z");
 const json = (id: string, startsOn: string, endsOn: string, name = "Event") =>
-  mapHeelLifeJson({ id, name, startsOn, endsOn, description: "<p>Hi &amp; <b>welcome</b></p>", theme: "Arts", benefitNames: ["Free Food"] }, now.toISOString());
+  mapHeelLifeJson({ id, name, startsOn, endsOn, description: "<p>Hi &amp; <b>welcome</b></p>", theme: "Arts", benefitNames: ["Free Food"] }, now.toISOString())!;
 
 describe("ingestion (basic)", () => {
   const RSS = (inner: string) => `<rss version="2.0"><channel>${inner}</channel></rss>`;

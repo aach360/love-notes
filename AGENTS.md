@@ -12,7 +12,8 @@
 ## Architecture rules
 - Shared models live only in `src/shared/types.ts`; modules import from there so four teammates can work in parallel.
 - Feature code lives in `src/modules/<area>/` (ingestion, discovery, recommendations, plan, assistant); routes stay thin.
-- External event sources are independent `SourceAdapter`s aggregated in parallel (see docs-ingestion.md); the undocumented Heel Life JSON endpoint is not registered — Heel Life uses RSS.
+- External event sources are independent `SourceAdapter`s aggregated in parallel; Heel Life tries replaceable transports in order (undocumented JSON endpoint, then RSS) so the unofficial API can be swapped without touching the importer.
+- The app never shows demo events: when no source has a usable snapshot the feed is `unavailable` and empty; fixtures live only in src/test, so fake data can never mix with real listings.
 - User state goes through `UserStateStorage` (localStorage today) so authenticated persistence can replace it without UI changes.
 - Provider keys (Gemini, ElevenLabs, admin token) are read only inside server function handlers; unconfigured integrations return an explicit "unconfigured" status, never fake success.
 - Visual styling uses the aero utilities in `src/styles.css` (aero-btn, aero-panel, aero-solid, bubble); components don't hardcode colors.

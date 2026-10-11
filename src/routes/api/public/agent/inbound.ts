@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/public/agent/inbound")({
           const feed = await getFeed();
           const a = askAssistant(ask[1]!, feed.events);
           const lines = a.events.slice(0, 3).map((e) => `• ${e.title}${e.sourceUrl ? ` ${e.sourceUrl}` : ""}`);
-          const demo = feed.origin === "demo" ? "\n(Demo events — live listings unavailable.)" : "";
+          const demo = feed.origin === "unavailable" ? "\n(Live listings are unavailable right now.)" : "";
           return Response.json({ reply: [a.text, ...lines].join("\n") + demo });
         }
 
