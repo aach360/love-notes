@@ -2,6 +2,7 @@ import { hasEnded, startsTodayOrFuture } from "@/shared/time";
 import type { EventFilters, PulseEvent, RankedEvent, Swipe, UserPreferences } from "@/shared/types";
 import { benefitLabel, formatLabel, topicLabel } from "@/shared/taxonomy";
 import { matchesDateFilter } from "@/shared/time";
+import { matchesEventType } from "@/shared/eventTypes";
 
 /** Public recommendation API. Hard filters run before fixed-weight scoring. */
 
@@ -80,7 +81,7 @@ export function applyFilters(
       !hasEnded(e, now) &&
       startsTodayOrFuture(e, now) &&
       matchesDateFilter(e, f.date, now) &&
-      (!f.category || e.categories.includes(f.category)) &&
+      matchesEventType(e, f.category) &&
       (!f.confirmedFreeOnly || isConfirmedFree(e)),
   );
 }

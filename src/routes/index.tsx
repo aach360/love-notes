@@ -15,6 +15,7 @@ import { MapView } from "@/modules/map/MapView";
 import { isEligibleForDiscover, matchesDateFilter } from "@/shared/time";
 import { LayoutGrid, Map as MapIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EVENT_TYPES, matchesEventType } from "@/shared/eventTypes";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,10 +45,7 @@ function Discover() {
   const { state, hydrated, recordSwipe, undoLast } = useUserState();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
-  const categories = useMemo(
-    () => Array.from(new Set(feed.events.flatMap((e) => e.categories))).sort(),
-    [feed.events],
-  );
+  const categories = EVENT_TYPES as unknown as string[];
   // Freeze the visible card across background updates (feed refreshes); it changes only after a swipe.
   const frozen = useRef<string | null>(null);
   const planIds = useMemo(() => state.plan.map((p) => p.eventId), [state.plan]);
@@ -84,7 +82,7 @@ function Discover() {
         (e) =>
           isEligibleForDiscover(e) &&
           matchesDateFilter(e, filters.date) &&
-          (!filters.category || e.categories.includes(filters.category)),
+          matchesEventType(e, filters.category),
       ),
     [feed.events, filters.date, filters.category],
   );
