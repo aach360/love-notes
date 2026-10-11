@@ -73,7 +73,7 @@ export interface HeelLifeJsonEvent {
 export function mapHeelLifeJson(e: HeelLifeJsonEvent, fetchedAt: string): PulseEvent | null {
   const id = String(e.id ?? "").trim();
   const startsAt = parseDate(e.startsOn);
-  if (!/^\d+$/.test(id) || !e.name || !startsAt) return null;
+  if (!id || !e.name || !startsAt) return null;
   const cat = themeToCategory(e.theme === "Unknown" ? null : e.theme);
   const tags = [...(e.categoryNames ?? []), ...(e.benefitNames ?? [])].map(cleanTag).filter(Boolean);
   const hosts = [e.organizationName, ...(e.organizationNames ?? [])].map((h) => (h ? decodeEntities(h).trim() : "")).filter(Boolean);
