@@ -10,33 +10,219 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as LabRouteImport } from './routes/lab'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PlanRouteImport } from './routes/plan'
+import { Route as SavedRouteImport } from './routes/saved'
+import { Route as ScanRouteImport } from './routes/scan'
+import { Route as ClubsIndexRouteImport } from './routes/clubs.index'
+import { Route as ClubsClubIdRouteImport } from './routes/clubs.$clubId'
+import { Route as ApiPublicAgentInboundRouteImport } from './routes/api/public/agent/inbound'
+import { Route as ApiPublicAgentOutboxRouteImport } from './routes/api/public/agent/outbox'
+import { Route as ApiPublicHooksRefreshRouteImport } from './routes/api/public/hooks/refresh'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabRoute = LabRouteImport.update({
+  id: '/lab',
+  path: '/lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanRoute = PlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClubsIndexRoute = ClubsIndexRouteImport.update({
+  id: '/clubs/',
+  path: '/clubs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClubsClubIdRoute = ClubsClubIdRouteImport.update({
+  id: '/clubs/$clubId',
+  path: '/clubs/$clubId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAgentInboundRoute = ApiPublicAgentInboundRouteImport.update({
+  id: '/api/public/agent/inbound',
+  path: '/api/public/agent/inbound',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAgentOutboxRoute = ApiPublicAgentOutboxRouteImport.update({
+  id: '/api/public/agent/outbox',
+  path: '/api/public/agent/outbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksRefreshRoute = ApiPublicHooksRefreshRouteImport.update({
+  id: '/api/public/hooks/refresh',
+  path: '/api/public/hooks/refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
+  '/calendar': typeof CalendarRoute
+  '/lab': typeof LabRoute
+  '/onboarding': typeof OnboardingRoute
+  '/plan': typeof PlanRoute
+  '/saved': typeof SavedRoute
+  '/scan': typeof ScanRoute
+  '/clubs/$clubId': typeof ClubsClubIdRoute
+  '/clubs/': typeof ClubsIndexRoute
+  '/api/public/agent/inbound': typeof ApiPublicAgentInboundRoute
+  '/api/public/agent/outbox': typeof ApiPublicAgentOutboxRoute
+  '/api/public/hooks/refresh': typeof ApiPublicHooksRefreshRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
+  '/calendar': typeof CalendarRoute
+  '/lab': typeof LabRoute
+  '/onboarding': typeof OnboardingRoute
+  '/plan': typeof PlanRoute
+  '/saved': typeof SavedRoute
+  '/scan': typeof ScanRoute
+  '/clubs/$clubId': typeof ClubsClubIdRoute
+  '/clubs': typeof ClubsIndexRoute
+  '/api/public/agent/inbound': typeof ApiPublicAgentInboundRoute
+  '/api/public/agent/outbox': typeof ApiPublicAgentOutboxRoute
+  '/api/public/hooks/refresh': typeof ApiPublicHooksRefreshRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
+  '/calendar': typeof CalendarRoute
+  '/lab': typeof LabRoute
+  '/onboarding': typeof OnboardingRoute
+  '/plan': typeof PlanRoute
+  '/saved': typeof SavedRoute
+  '/scan': typeof ScanRoute
+  '/clubs/$clubId': typeof ClubsClubIdRoute
+  '/clubs/': typeof ClubsIndexRoute
+  '/api/public/agent/inbound': typeof ApiPublicAgentInboundRoute
+  '/api/public/agent/outbox': typeof ApiPublicAgentOutboxRoute
+  '/api/public/hooks/refresh': typeof ApiPublicHooksRefreshRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/assistant'
+    | '/auth'
+    | '/calendar'
+    | '/lab'
+    | '/onboarding'
+    | '/plan'
+    | '/saved'
+    | '/scan'
+    | '/clubs/$clubId'
+    | '/clubs/'
+    | '/api/public/agent/inbound'
+    | '/api/public/agent/outbox'
+    | '/api/public/hooks/refresh'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/assistant'
+    | '/auth'
+    | '/calendar'
+    | '/lab'
+    | '/onboarding'
+    | '/plan'
+    | '/saved'
+    | '/scan'
+    | '/clubs/$clubId'
+    | '/clubs'
+    | '/api/public/agent/inbound'
+    | '/api/public/agent/outbox'
+    | '/api/public/hooks/refresh'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/assistant'
+    | '/auth'
+    | '/calendar'
+    | '/lab'
+    | '/onboarding'
+    | '/plan'
+    | '/saved'
+    | '/scan'
+    | '/clubs/$clubId'
+    | '/clubs/'
+    | '/api/public/agent/inbound'
+    | '/api/public/agent/outbox'
+    | '/api/public/hooks/refresh'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AssistantRoute: typeof AssistantRoute
+  AuthRoute: typeof AuthRoute
+  CalendarRoute: typeof CalendarRoute
+  LabRoute: typeof LabRoute
+  OnboardingRoute: typeof OnboardingRoute
+  PlanRoute: typeof PlanRoute
+  SavedRoute: typeof SavedRoute
+  ScanRoute: typeof ScanRoute
+  ClubsClubIdRoute: typeof ClubsClubIdRoute
+  ClubsIndexRoute: typeof ClubsIndexRoute
+  ApiPublicAgentInboundRoute: typeof ApiPublicAgentInboundRoute
+  ApiPublicAgentOutboxRoute: typeof ApiPublicAgentOutboxRoute
+  ApiPublicHooksRefreshRoute: typeof ApiPublicHooksRefreshRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +234,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab': {
+      id: '/lab'
+      path: '/lab'
+      fullPath: '/lab'
+      preLoaderRoute: typeof LabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan': {
+      id: '/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clubs/': {
+      id: '/clubs/'
+      path: '/clubs'
+      fullPath: '/clubs/'
+      preLoaderRoute: typeof ClubsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clubs/$clubId': {
+      id: '/clubs/$clubId'
+      path: '/clubs/$clubId'
+      fullPath: '/clubs/$clubId'
+      preLoaderRoute: typeof ClubsClubIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/agent/inbound': {
+      id: '/api/public/agent/inbound'
+      path: '/api/public/agent/inbound'
+      fullPath: '/api/public/agent/inbound'
+      preLoaderRoute: typeof ApiPublicAgentInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/agent/outbox': {
+      id: '/api/public/agent/outbox'
+      path: '/api/public/agent/outbox'
+      fullPath: '/api/public/agent/outbox'
+      preLoaderRoute: typeof ApiPublicAgentOutboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/refresh': {
+      id: '/api/public/hooks/refresh'
+      path: '/api/public/hooks/refresh'
+      fullPath: '/api/public/hooks/refresh'
+      preLoaderRoute: typeof ApiPublicHooksRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AssistantRoute: AssistantRoute,
+  AuthRoute: AuthRoute,
+  CalendarRoute: CalendarRoute,
+  LabRoute: LabRoute,
+  OnboardingRoute: OnboardingRoute,
+  PlanRoute: PlanRoute,
+  SavedRoute: SavedRoute,
+  ScanRoute: ScanRoute,
+  ClubsClubIdRoute: ClubsClubIdRoute,
+  ClubsIndexRoute: ClubsIndexRoute,
+  ApiPublicAgentInboundRoute: ApiPublicAgentInboundRoute,
+  ApiPublicAgentOutboxRoute: ApiPublicAgentOutboxRoute,
+  ApiPublicHooksRefreshRoute: ApiPublicHooksRefreshRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
