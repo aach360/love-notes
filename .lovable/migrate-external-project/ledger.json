@@ -18,9 +18,9 @@
     {
       "capability": "auth + cloud persistence (Lovable Cloud / Supabase)",
       "source": "src/integrations/supabase, src/modules/auth",
-      "outcome": "requires Lovable Cloud enabled",
+      "outcome": "Lovable Cloud enabled; email/password sign-in tested end to end (signup created account + profile row via trigger; sign-in restores session, header shows Account, account page confirms identity, onboarding write succeeded); Google provider enabled this turn",
       "status": "verified",
-      "next_action": "none"
+      "next_action": "auth emails use the default Lovable sender until an email domain is configured; test account josh.test@unc.edu left in database (unconfirmed)"
     },
     {
       "capability": "club chats (Lovable Cloud tables, server functions)",
