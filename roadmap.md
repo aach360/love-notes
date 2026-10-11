@@ -30,3 +30,5 @@
 - [x] Visual + motion redesign (brief: Give_PulseMatch_a_substantial_visual)
 - [ ] UNC event map in Discover (brief: PulseMatch_-_UNC_event_map_implementation_brief)
 - [x] Action dock redesign + swipe-up detail sheet + stable card identity during refresh (Aarav, 2026-10-11); browser checks and 20 regression tests pass
+- [ ] Heel Life JSON importer + RSS fallback, no demo, twice-weekly cron, centered detail sheet + swipe-down
+- [ ] Replace foot logo in filter sidebar with semi-transparent arrow; Rameses (uploaded) as chatbot identity
