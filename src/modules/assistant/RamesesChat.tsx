@@ -26,10 +26,8 @@ export function RamesesChat() {
 
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
-  const [typing, setTyping] = useState(false);
   const [q, setQ] = useState("");
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +40,7 @@ export function RamesesChat() {
   // Auto-scroll to newest message.
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [log, typing, open]);
+  }, [log, pending, open]);
 
   // Focus input when the panel opens.
   useEffect(() => {
@@ -66,7 +64,6 @@ export function RamesesChat() {
   useEffect(
     () => () => {
       if (closeTimer.current) clearTimeout(closeTimer.current);
-      if (typeTimer.current) clearTimeout(typeTimer.current);
     },
     [],
   );
@@ -212,7 +209,7 @@ export function RamesesChat() {
                 </div>
               </div>
             ))}
-            {typing && (
+            {pending && (
               <div className="aero-solid inline-flex gap-1 rounded-3xl rounded-bl-md px-4 py-3" aria-label="Rameses is typing">
                 <span className="typing-dot" />
                 <span className="typing-dot" />
