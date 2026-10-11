@@ -64,7 +64,7 @@ function AccountButton() {
   const { user, ready } = useAuth();
   if (!ready) return <span className="w-16" aria-hidden />;
   return (
-    <Link to="/auth" className="aero-btn aero-pearl inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold">
+    <Link to="/auth" className="aero-btn aero-pearl inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold">
       <UserRound className="size-4" />
       {user ? "Account" : "Sign in"}
     </Link>
@@ -75,7 +75,7 @@ function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2">
       <span className="aero-btn aero-grass inline-flex size-9 items-center justify-center rounded-full font-display text-lg font-black">P</span>
-      <span className="font-display text-xl font-bold text-navy">PulseMatch</span>
+      <span className="font-display text-lg font-semibold text-navy">PulseMatch</span>
     </Link>
   );
 }
@@ -87,7 +87,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="relative min-h-dvh">
       <Ambient />
       <header className="sticky top-3 z-30 px-3">
-        <div className="floating-nav mx-auto flex h-14 max-w-4xl items-center justify-between rounded-full px-3 pl-4">
+        <div className="floating-nav mx-auto flex h-16 max-w-4xl items-center justify-between gap-2 rounded-full px-3 pl-4">
           <Logo />
           <nav className="hidden gap-1 md:flex" aria-label="Main">
             {NAV.map((n) => (
@@ -95,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={n.to}
                 to={n.to}
                 activeOptions={{ exact: n.to !== "/clubs" }}
-                className="nav-link rounded-full px-3.5 py-1.5 text-sm font-bold text-navy/70 hover:text-navy"
+                className="nav-link inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-semibold text-navy/70 hover:text-navy"
                 activeProps={{ className: "nav-active text-navy" }}
               >
                 {n.label}
@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-4 pb-28 pt-5 md:pb-10">
+      <div className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:px-6 md:pb-10">
         <main className="min-w-0">{children}</main>
       </div>
 

@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Remove Confirmed free filter and refine shared Aero presentation; browser checks and 20 regression tests pass.
 - [x] Shared types, ingestion adapters, importer, ranking, storage, plan, assistant logic
 - [x] UI: shell + Discover, Saved, Plan, Assistant, Admin
 - [x] Glossy aqua/sky/bubble visual system across all tabs

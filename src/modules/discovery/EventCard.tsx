@@ -57,8 +57,8 @@ export function EventCard({ ranked, onDetails }: { ranked: RankedEvent; onDetail
           {e.location && <span className="flex min-w-0 items-center gap-1"><MapPin className="size-3.5 shrink-0" /><span className="truncate">{e.location}</span></span>}
           {!e.location && e.organizer && <span className="flex min-w-0 items-center gap-1"><Users className="size-3.5 shrink-0" /><span className="truncate">{e.organizer}</span></span>}
         </p>
-        <div className="flex items-center gap-1.5">
-          {cardChips(e).map((c) => <span key={c} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-bold text-secondary-foreground">{c}</span>)}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {cardChips(e).map((c) => <span key={c} className="max-w-full truncate rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground">{c}</span>)}
           <Button
             type="button"
             variant="ghost"

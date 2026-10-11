@@ -1,5 +1,6 @@
 import type { DateFilter, EventFilters } from "@/shared/types";
 import { cn } from "@/lib/utils";
+import { AeroButton } from "@/components/aero";
 
 const DATES: { v: DateFilter; l: string }[] = [
   { v: "any", l: "Anytime" },
@@ -11,17 +12,17 @@ const DATES: { v: DateFilter; l: string }[] = [
 
 function Pill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
+    <AeroButton
       type="button"
+      tone={active ? "aqua" : "pearl"}
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-full px-3 py-1.5 text-xs font-bold",
-        active ? "aero-btn aero-aqua" : "aero-btn aero-pearl",
+        "min-h-11 shrink-0 rounded-xl px-3 py-1.5 text-xs font-semibold",
       )}
     >
       {children}
-    </button>
+    </AeroButton>
   );
 }
 
@@ -32,9 +33,6 @@ export function Filters({ value, onChange, categories }: { value: EventFilters; 
         {DATES.map((d) => (
           <Pill key={d.v} active={value.date === d.v} onClick={() => onChange({ ...value, date: d.v })}>{d.l}</Pill>
         ))}
-        <Pill active={value.confirmedFreeOnly} onClick={() => onChange({ ...value, confirmedFreeOnly: !value.confirmedFreeOnly })}>
-          Confirmed free
-        </Pill>
       </div>
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 py-1">
         <Pill active={!value.category} onClick={() => onChange({ ...value, category: null })}>All types</Pill>

@@ -78,7 +78,7 @@ function Discover() {
           </StatePanel>
         ) : (
           <StatePanel icon={<Heart className="size-6" />} title="Nothing matches these filters">
-            <p>Most calendars don't list prices, so only events marked free by their source count as confirmed free.</p>
+            <p>Try another date or event type to see more upcoming events.</p>
             <AeroButton tone="pearl" className="mt-4" onClick={() => setFilters(DEFAULT_FILTERS)}>Clear filters</AeroButton>
           </StatePanel>
         )
