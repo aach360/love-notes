@@ -9,7 +9,7 @@ import type { PulseEvent } from "@/shared/types";
 
 const now = new Date("2026-10-10T16:00:00Z");
 const json = (id: string, startsOn: string, endsOn: string, name = "Event") =>
-  mapHeelLifeJson({ id, name, startsOn, endsOn, description: "<p>Hi &amp; <b>welcome</b></p>", theme: "Arts", benefitNames: ["Free Food"] }, now.toISOString());
+  mapHeelLifeJson({ id, name, startsOn, endsOn, description: "<p>Hi &amp; <b>welcome</b></p>", theme: "Arts", benefitNames: ["Free Food"] }, now.toISOString())!;
 
 describe("ingestion (basic)", () => {
   const RSS = (inner: string) => `<rss version="2.0"><channel>${inner}</channel></rss>`;

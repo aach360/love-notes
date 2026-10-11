@@ -221,3 +221,22 @@ describe("time", () => {
     expect(zonedTimeToUtc(2026, 3, 7, 12, 0, 0).toISOString()).toBe("2026-03-07T17:00:00.000Z");
   });
 });
+
+import { createHeelLifeAdapter } from "@/modules/ingestion/adapters";
+describe("heel life transports", () => {
+  const ctx = { now: new Date("2026-10-11T00:00:00Z"), fetchedAt: "2026-10-11T00:00:00Z", windowDays: 60 };
+  const ev = { id: "heellife:1", startsAt: "2026-10-12T20:00:00Z" } as never;
+  it("falls back to RSS when JSON fails", async () => {
+    const a = createHeelLifeAdapter([
+      { name: "JSON", run: async () => { throw new Error("boom"); } },
+      { name: "RSS", run: async () => ({ events: [ev], skipped: 0, complete: true }) },
+    ]);
+    const r = await a.fetch(ctx);
+    expect(r.events).toHaveLength(1);
+    expect(r.warnings[0]).toMatch(/RSS fallback/);
+  });
+  it("throws when every transport fails", async () => {
+    const a = createHeelLifeAdapter([{ name: "JSON", run: async () => { throw new Error("x"); } }]);
+    await expect(a.fetch(ctx)).rejects.toThrow(/JSON failed/);
+  });
+});
