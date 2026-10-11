@@ -1,4 +1,5 @@
-import { MapPin, Users, ChevronDown } from "lucide-react";
+import { MapPin, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { PulseEvent, RankedEvent } from "@/shared/types";
 import { DISPLAY_TZ } from "@/shared/types";
 import { formatEventDate } from "@/shared/time";
@@ -59,14 +60,16 @@ export function EventCard({ ranked, onDetails }: { ranked: RankedEvent; onDetail
         </p>
         <div className="flex items-center gap-1.5">
           {cardChips(e).map((c) => <span key={c} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-bold text-secondary-foreground">{c}</span>)}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="touch"
             onPointerDown={(ev) => ev.stopPropagation()}
             onClick={onDetails}
-            className="ml-auto rounded-full px-2 py-1 text-xs font-bold text-primary hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="ml-auto shrink-0 text-xs font-bold text-primary"
           >
-            Details
-          </button>
+            <ChevronUp /> Details
+          </Button>
         </div>
         {ranked.breakdown && (
           <details className="group text-xs" onPointerDown={(ev) => ev.stopPropagation()}>

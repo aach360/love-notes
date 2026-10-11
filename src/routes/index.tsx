@@ -9,11 +9,10 @@ import { useUserState } from "@/modules/recommendations/UserStateProvider";
 import { getRecommendations } from "@/modules/recommendations/ranking";
 import { SwipeDeck } from "@/modules/discovery/SwipeDeck";
 import { FilterSidebar } from "@/modules/discovery/FilterSidebar";
-import { EventDetail } from "@/modules/discovery/EventDetail";
 import { StatePanel } from "@/components/StatePanel";
 import { AeroButton } from "@/components/aero";
 import { TasteSidebar } from "@/modules/recommendations/TasteSidebar";
-import type { EventFilters, PulseEvent } from "@/shared/types";
+import type { EventFilters } from "@/shared/types";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,6 +21,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan." },
       { property: "og:title", content: "PulseMatch — Discover UNC campus events" },
       { property: "og:description", content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(eventsQuery),
@@ -34,7 +35,6 @@ function Discover() {
   const { data: feed } = useSuspenseQuery(eventsQuery);
   const { state, hydrated, recordSwipe, undoLast } = useUserState();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [detail, setDetail] = useState<PulseEvent | null>(null);
 
   const categories = useMemo(() => Array.from(new Set(feed.events.flatMap((e) => e.categories))).sort(), [feed.events]);
   const { data: vec } = useQuery(eventVectorsQuery);
@@ -88,10 +88,9 @@ function Discover() {
           </StatePanel>
         )
       ) : (
-        <SwipeDeck ranked={ranked} onSwipe={(e, d) => { const b = ranked.find((r) => r.event.id === e.id)?.breakdown; recordSwipe(e, d, b?.features, b?.exploratory); }} onUndo={undo} canUndo={state.swipes.length > 0} onDetails={setDetail} returning={returning} onReturned={clearReturning} />
+        <SwipeDeck ranked={ranked} onSwipe={(e, d, card) => { const b = card.breakdown; recordSwipe(e, d, b?.features, b?.exploratory); }} onUndo={undo} canUndo={state.swipes.length > 0} returning={returning} onReturned={clearReturning} />
       )}
 
-      <EventDetail event={detail} onClose={() => setDetail(null)} />
     </div>
   );
 }

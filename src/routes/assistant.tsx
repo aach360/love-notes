@@ -15,6 +15,8 @@ export const Route = createFileRoute("/assistant")({
       { name: "description", content: "Ask what's happening at UNC — answers come from real listed events with links." },
       { property: "og:title", content: "Assistant — PulseMatch" },
       { property: "og:description", content: "Ask about UNC campus events." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(eventsQuery),

@@ -16,6 +16,8 @@ export const Route = createFileRoute("/calendar")({
       { name: "description", content: "See your planned and saved UNC events on a monthly calendar and add them to your phone." },
       { property: "og:title", content: "Calendar — PulseMatch" },
       { property: "og:description", content: "Your UNC events on a calendar, ready to add to your phone." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CalendarPage,

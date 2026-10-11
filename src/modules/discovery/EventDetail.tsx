@@ -7,15 +7,16 @@ import { Chip } from "@/components/aero";
 import { EventImage } from "./EventImage";
 import { sourceLabel } from "./sourceLabel";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
-export function EventDetail({ event, onClose, actions }: { event: PulseEvent | null; onClose: () => void; actions?: ReactNode }) {
+export function EventDetail({ event, onClose, actions, sheet = false, restoreFocus }: { event: PulseEvent | null; onClose: () => void; actions?: ReactNode; sheet?: boolean; restoreFocus?: () => void }) {
   return (
     <Dialog open={!!event} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="aero-panel max-h-[90dvh] overflow-y-auto rounded-[2rem] border-0 p-0 sm:max-w-lg">
+      <DialogContent onCloseAutoFocus={restoreFocus ? (e) => { e.preventDefault(); restoreFocus(); } : undefined} className={`${sheet ? "event-detail-sheet " : ""}aero-panel max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[2rem] border-0 p-0 sm:max-w-lg`}>
         {event && (
           <>
             <div className="relative aspect-video overflow-hidden rounded-t-[2rem]">
-              <EventImage event={event} />
+              <EventImage key={`${event.id}:${event.imageUrl}`} event={event} eager />
               <div className="gloss absolute inset-0" />
             </div>
             <div className="aero-solid space-y-3 p-5">
@@ -54,9 +55,11 @@ export function EventDetail({ event, onClose, actions }: { event: PulseEvent | n
               <div className="flex flex-wrap gap-2 pt-1">
                 {actions}
                 {event.sourceUrl ? (
-                  <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" className="aero-btn aero-pearl inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold">
-                    View on {sourceLabel(event)} <ExternalLink className="size-4" />
-                  </a>
+                  <Button asChild variant="dock" size="touch">
+                    <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer">
+                      Register / RSVP · {sourceLabel(event)} <ExternalLink />
+                    </a>
+                  </Button>
                 ) : (
                   <span className="text-xs font-semibold text-muted-foreground">Demo event — no source page.</span>
                 )}
