@@ -69,3 +69,51 @@ describe("fixed-weight recommendations", () => {
     expect(restored.prefs).not.toHaveProperty("bandit");
   });
 });
+
+describe("upcoming events and recurring series", () => {
+  const base = events[0]!;
+  const occurrence = (id: string, days: number) => ({
+    ...base,
+    id,
+    title: "Sunday club meetup",
+    organizer: "Weekly club",
+    startsAt: new Date(now.getTime() + days * 86400000).toISOString(),
+    endsAt: new Date(now.getTime() + days * 86400000 + 3600000).toISOString(),
+  });
+  it("prioritizes this week over strong interests several weeks away", () => {
+    const soon = { ...occurrence("soon", 1), title: "New activity", topics: [] };
+    const later = { ...occurrence("later", 28), title: "Favorite activity", topics: ["arts"] };
+    const ranked = getRecommendations({
+      ...input,
+      events: [later, soon],
+      prefs: { ...emptyPreferences(), weights: { "topic:arts": 1000 } },
+    });
+    expect(ranked[0]?.event.id).toBe("soon");
+  });
+  it("shows only the nearest occurrence, including after it is saved or planned", () => {
+    const series = [occurrence("first", 1), occurrence("second", 8), occurrence("third", 15)];
+    expect(getRecommendations({ ...input, events: series }).map((item) => item.event.id)).toEqual([
+      "first",
+    ]);
+    expect(
+      getRecommendations({
+        ...input,
+        events: series,
+        swipes: [{ eventId: "first", direction: "like", at: now.toISOString() }],
+      }),
+    ).toEqual([]);
+    expect(getRecommendations({ ...input, events: series, planIds: ["first"] })).toEqual([]);
+    expect(
+      getRecommendations({
+        ...input,
+        events: series,
+        now: new Date(now.getTime() + 2 * 86400000),
+      })[0]?.event.id,
+    ).toBe("second");
+  });
+  it("keeps different activities from the same club eligible", () => {
+    const meetup = occurrence("meetup", 1);
+    const workshop = { ...occurrence("workshop", 2), title: "Workshop" };
+    expect(getRecommendations({ ...input, events: [meetup, workshop] })).toHaveLength(2);
+  });
+});

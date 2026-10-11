@@ -59,7 +59,7 @@ export function FilterSidebar({
         aria-expanded={open}
         aria-controls="event-filter-dropdown"
         onClick={() => setOpen(!open)}
-        className="aero-btn aero-pearl inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-4 py-2 text-xs font-bold"
+        className="aero-btn aero-pearl inline-flex min-h-11 items-center justify-center gap-1 rounded-full px-2 py-2 text-xs font-bold sm:px-4"
       >
         <SlidersHorizontal className="size-4" /> Filters
         {active > 0 && (
@@ -73,7 +73,7 @@ export function FilterSidebar({
         <section
           id="event-filter-dropdown"
           aria-label="Event filters"
-          className="aero-panel absolute left-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] space-y-4 rounded-3xl p-4 shadow-xl"
+          className="aero-panel fixed inset-x-3 top-36 max-h-[min(22rem,calc(100dvh-14rem))] overflow-y-auto space-y-3 md:absolute md:inset-x-auto md:left-0 md:top-full md:mt-2 md:w-80 md:max-w-[calc(100vw-2rem)] md:space-y-4 rounded-3xl p-4 shadow-xl"
         >
           <label className="grid gap-2 text-sm font-bold text-navy">
             When

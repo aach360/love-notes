@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { UserRound, CalendarDays, Heart, Sparkles, Users } from "lucide-react";
 import type { ReactNode } from "react";
 import { useAuth } from "@/modules/auth/AuthProvider";
@@ -100,15 +100,22 @@ function Logo() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { state } = useUserState();
+  const discover = useLocation().pathname === "/";
   const counts: Record<string, number> = {
     "/saved": state.saved.length,
     "/plan": state.plan.length,
   };
   return (
-    <div className="relative min-h-dvh">
+    <div
+      className={
+        discover
+          ? "discover-shell relative flex h-dvh flex-col overflow-hidden"
+          : "relative min-h-dvh"
+      }
+    >
       <Ambient />
       <RamesesHelper />
-      <header className="sticky top-3 z-50 px-3">
+      <header className="sticky top-3 z-50 shrink-0 px-3">
         <div className="floating-nav mx-auto flex h-16 max-w-4xl items-center justify-between gap-2 rounded-full px-3 pl-4">
           <Logo />
           <nav className="hidden gap-1 md:flex" aria-label="Main">
@@ -136,8 +143,20 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:px-6 md:pb-10">
-        <main className="relative z-0 min-w-0">{children}</main>
+      <div
+        className={
+          discover
+            ? "mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col px-3 pb-24 pt-5 md:px-6 md:pb-5"
+            : "mx-auto max-w-4xl px-4 pb-28 pt-6 md:px-6 md:pb-10"
+        }
+      >
+        <main
+          className={
+            discover ? "relative z-0 flex min-h-0 flex-1 flex-col" : "relative z-0 min-w-0"
+          }
+        >
+          {children}
+        </main>
       </div>
 
       <nav

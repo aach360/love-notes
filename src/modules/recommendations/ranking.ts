@@ -109,24 +109,47 @@ export function baselineRecommendations(input: {
 }): RankedEvent[] {
   const now = input.now ?? new Date();
   const swiped = new Set(input.swipes.map((s) => s.eventId));
-  const pool = applyFilters(input.events, input.filters, now).filter((e) => !swiped.has(e.id));
+  // Keep only the nearest occurrence of the same titled series, even after it
+  // is swiped. The next occurrence becomes eligible after that one ends.
+  const eligible = applyFilters(input.events, input.filters, now);
+  const series = (event: PulseEvent) =>
+    JSON.stringify([
+      event.organizer?.trim().toLowerCase() || event.location?.trim().toLowerCase() || "",
+      event.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim(),
+    ]);
+  const nearest = new Map<string, PulseEvent>();
+  for (const event of eligible) {
+    const key = series(event);
+    const previous = nearest.get(key);
+    if (!previous || event.startsAt < previous.startsAt) nearest.set(key, event);
+  }
+  const pool = [...nearest.values()].filter((e) => !swiped.has(e.id));
+  const urgency = (event: PulseEvent) => {
+    const days = Math.max(0, (Date.parse(event.startsAt) - now.getTime()) / 86400000);
+    return days <= 2 ? 0 : days <= 7 ? 1 : days <= 14 ? 2 : days <= 30 ? 3 : 4;
+  };
   const scored = pool.map((event) => {
     const keys = new Set(featureKeys(event));
     let pref = 0;
     for (const k of keys) pref += input.prefs.weights[k] ?? 0;
     const hoursAway = Math.max(0, (new Date(event.startsAt).getTime() - now.getTime()) / 3600_000);
     const soon = 1 / (1 + hoursAway / 48);
-    const score = pref + soon * 0.8 + jitter(event.id) * 0.6;
+    const score = Math.tanh(pref / 4) * 2 + soon * 2 + jitter(event.id) * 0.2;
     return { event, score: Math.round(score * 100) / 100, reason: explain(event, input.prefs) };
   });
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a, b) => urgency(a.event) - urgency(b.event) || b.score - a.score);
   const out: RankedEvent[] = [];
   const rest = [...scored];
   while (rest.length) {
     const lastTwo = out.slice(-2).map((r) => r.event.categories[0]);
     let idx = 0;
     if (lastTwo.length === 2 && lastTwo[0] === lastTwo[1]) {
-      const alt = rest.findIndex((r) => r.event.categories[0] !== lastTwo[0]);
+      const alt = rest.findIndex(
+        (r) => urgency(r.event) === urgency(rest[0]!.event) && r.event.categories[0] !== lastTwo[0],
+      );
       if (alt > 0) idx = alt;
     }
     out.push(rest.splice(idx, 1)[0]!);
@@ -142,10 +165,7 @@ export function getRecommendations(
   },
 ): RankedEvent[] {
   const planned = new Set(input.planIds ?? []);
-  const ranked = baselineRecommendations({
-    ...input,
-    events: input.events.filter((e) => !planned.has(e.id)),
-  });
+  const ranked = baselineRecommendations(input).filter((item) => !planned.has(item.event.id));
   const idx = ranked.findIndex((r) => r.event.id === input.frozenId);
   if (idx > 0) ranked.unshift(ranked.splice(idx, 1)[0]!);
   return ranked;

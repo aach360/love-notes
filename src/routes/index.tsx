@@ -88,8 +88,8 @@ function Discover() {
   );
 
   return (
-    <div className="space-y-3">
-      <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-2">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="relative z-20 flex shrink-0 items-center justify-between gap-1">
         <div role="tablist" aria-label="Discover view" className="view-switch">
           {(
             [
@@ -101,10 +101,12 @@ function Discover() {
               key={v}
               role="tab"
               aria-selected={view === v}
+              aria-label={label}
               onClick={() => setView(v)}
               className={cn("view-switch-btn", view === v && "is-on")}
             >
-              <Icon className="size-4" aria-hidden /> {label}
+              <Icon className="size-4" aria-hidden />{" "}
+              <span className="hidden sm:inline">{label}</span>
             </button>
           ))}
         </div>
@@ -118,11 +120,13 @@ function Discover() {
       </div>
 
       {view === "map" ? (
-        <MapView
-          events={mapEvents}
-          date={filters.date}
-          onDate={(date) => setFilters((f) => ({ ...f, date }))}
-        />
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <MapView
+            events={mapEvents}
+            date={filters.date}
+            onDate={(date) => setFilters((f) => ({ ...f, date }))}
+          />
+        </div>
       ) : !hydrated ? (
         <StatePanel icon={<Waves className="size-6 animate-pulse" />} title="Loading events…" />
       ) : feed.events.length === 0 ? (

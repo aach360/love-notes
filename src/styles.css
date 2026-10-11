@@ -1067,3 +1067,9 @@
 @media (prefers-reduced-motion: reduce) {
   .rameses-launcher { transition: none; }
 }
+
+body:has(.discover-shell) { overflow: hidden; overscroll-behavior: none; }
+
+@media (max-width: 639px) {
+  .view-switch-btn { min-width: 44px; padding: 0 0.75rem; }
+}
