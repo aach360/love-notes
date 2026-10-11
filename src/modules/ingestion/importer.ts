@@ -50,13 +50,14 @@ export interface Importer {
 export function createImporter(adapters: SourceAdapter[] = ADAPTERS, opts: { windowDays?: number; persist?: boolean } = {}): Importer {
   const states = new Map<SourceId, SourceState>(adapters.map((a) => [a.id, { good: null, lastStatus: null, lastError: null, lastAttemptAt: null, lastSuccessAt: null, warnings: [] }]));
   const persist = opts.persist ?? true;
-  let loaded = false;
+  let loadedAt = 0;
   let inFlight: Promise<void> | null = null;
 
   /** One-time bootstrap from durable storage. Never fetches publishers. */
   async function load() {
-    if (loaded || !persist) return;
-    loaded = true;
+    // Re-read persisted snapshots periodically so refreshes from other workers show up.
+    if (!persist || Date.now() - loadedAt < RESPONSE_CACHE_TTL_MS) return;
+    loadedAt = Date.now();
     const rows = await loadSnapshots();
     if (!rows) return;
     for (const r of rows) {
