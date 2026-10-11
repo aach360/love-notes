@@ -16,12 +16,16 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        dock: "aero-control text-navy",
+        dockSave: "aero-control aero-control-save text-navy",
+        dockQuiet: "aero-control aero-control-quiet text-muted-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",
+        touch: "h-11 min-w-11 px-3",
       },
     },
     defaultVariants: {
