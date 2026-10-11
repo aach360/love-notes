@@ -391,3 +391,47 @@
   .animate-card-enter, .dock-ripple, .save-fly, .count-bump { animation: none; }
   .save-fly, .dock-ripple { display: none; }
 }
+
+/* ---------- Frutiger Aero sky: sun bloom, drifting clouds, grass horizon ---------- */
+.aero-sky {
+  background:
+    radial-gradient(46rem 28rem at 14% -8%, oklch(1 0 0 / 0.96), oklch(0.97 0.05 200 / 0.55) 42%, transparent 74%),
+    radial-gradient(58rem 32rem at 88% 6%, oklch(0.93 0.1 195 / 0.8), transparent 70%),
+    radial-gradient(70rem 34rem at 50% 112%, oklch(0.8 0.14 156 / 0.6), transparent 64%),
+    linear-gradient(180deg, oklch(0.76 0.13 233) 0%, oklch(0.87 0.09 214) 34%, oklch(0.95 0.05 197) 62%, oklch(0.91 0.08 168) 86%, oklch(0.84 0.13 152) 100%);
+}
+.aero-sheen {
+  background: radial-gradient(60% 42% at 50% 46%, oklch(1 0 0 / 0.5), transparent 72%);
+}
+@keyframes aero-drift {
+  0%, 100% { transform: translate3d(-6%, 0, 0); }
+  50% { transform: translate3d(6%, -1.5%, 0); }
+}
+.aero-cloud {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(16px);
+  background: radial-gradient(closest-side, oklch(1 0 0 / 0.92), oklch(1 0 0 / 0.4) 55%, transparent 78%);
+  animation: aero-drift var(--dur, 70s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform;
+}
+.aero-grass {
+  position: absolute;
+  inset-inline: -12%;
+  bottom: -7rem;
+  height: 24vh;
+  border-radius: 50% 50% 0 0 / 24% 24% 0 0;
+  background: linear-gradient(180deg, oklch(0.88 0.12 152 / 0.9), oklch(0.72 0.16 146 / 0.96));
+  box-shadow: inset 0 2px 0 oklch(1 0 0 / 0.55), 0 -18px 40px -18px oklch(0.5 0.12 150 / 0.5);
+}
+.aero-grass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.35), transparent 40%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aero-cloud { animation: none; }
+}
