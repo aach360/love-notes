@@ -20,8 +20,6 @@ create table if not exists public.events (
   status text not null default 'scheduled',
   last_fetched_at timestamptz not null,
   is_demo boolean not null default false,
-  ai_summary text,
-  ai_tags text[] not null default '{}',
   unique (source_event_id, source)
 );
 alter table public.events enable row level security;

@@ -16,9 +16,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Make campus feel like yours — UNCover" },
+      { title: "Make campus feel like yours — UNCitall" },
       { name: "description", content: "Pick your interests and swipe a few UNC events to tune your feed." },
-      { property: "og:title", content: "Make campus feel like yours — UNCover" },
+      { property: "og:title", content: "Make campus feel like yours — UNCitall" },
       { property: "og:description", content: "Pick your interests and swipe a few UNC events to tune your feed." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

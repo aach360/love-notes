@@ -79,9 +79,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "UNCover — What's happening at UNC" },
+      { title: "UNCitall — What's happening at UNC" },
       { name: "description", content: "What's happening at UNC Chapel Hill, one event at a time." },
-      { property: "og:title", content: "UNCover — What's happening at UNC" },
+      { property: "og:title", content: "UNCitall — What's happening at UNC" },
       {
         property: "og:description",
         content: "What's happening at UNC Chapel Hill, one event at a time.",

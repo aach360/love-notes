@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * UNCover logo: a "U" whose right arm folds open at the top, like a page corner
+ * UNCitall logo: a "U" whose right arm folds open at the top, like a page corner
  * being lifted to reveal what's underneath. Single silhouette, reads at 16px.
  */
 export function LogoMark({ className }: { className?: string }) {
@@ -33,7 +33,7 @@ export function Logo({ className }: { className?: string }) {
     <span className={cn("inline-flex items-center gap-2", className)}>
       <LogoMark />
       <span className="font-display text-[1.15rem] font-semibold tracking-[-0.02em] text-navy">
-        <span className="font-bold">UNC</span>over
+        <span className="font-bold">UNC</span>itall
       </span>
     </span>
   );

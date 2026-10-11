@@ -4,7 +4,7 @@ import { useUserState } from "./UserStateProvider";
 import { keyLabel } from "./ranking";
 import { cn } from "@/lib/utils";
 
-/** Small personal status pill on Discover; expands to show what UNCover has learned. */
+/** Small personal status pill on Discover; expands to show what UNCitall has learned. */
 export function TasteSidebar({ className }: { className?: string }) {
   const { state, reset } = useUserState();
   const [open, setOpen] = useState(false);

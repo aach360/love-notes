@@ -1,1 +1,12 @@
-project_id = "aabwamgmsobcpqpytzsb"
+project_id = "ampjjabkrzwwgkizknih"
+# Local Supabase settings. Hosted projects require the same settings in their dashboard.
+[auth]
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["http://localhost:8080/auth", "http://127.0.0.1:8080/auth"]
+
+[auth.email]
+enable_confirmations = true
+
+[auth.email.template.confirmation]
+subject = "Confirm your UNCitall account"
+content_path = "./supabase/templates/confirmation.html"

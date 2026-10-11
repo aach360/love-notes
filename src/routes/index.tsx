@@ -19,12 +19,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "UNCover — What's happening at UNC" },
+      { title: "UNCitall — What's happening at UNC" },
       {
         name: "description",
         content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan.",
       },
-      { property: "og:title", content: "UNCover — What's happening at UNC" },
+      { property: "og:title", content: "UNCitall — What's happening at UNC" },
       {
         property: "og:description",
         content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan.",

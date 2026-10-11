@@ -1,4 +1,4 @@
-# UNCover
+# UNCitall
 
 UNC Chapel Hill event discovery built with TanStack Start, React, TypeScript and Tailwind v4.
 
@@ -37,3 +37,5 @@ See [contracts](CONTRACTS.md) and [ingestion](docs-ingestion.md).
 ## Photon iMessage
 
 Photon messaging is available from Plan: account linking, opted-in reminders, club commands and keyword/date searches over imported events. It uses a separate always-on Spectrum agent and Supabase service-only RPCs; no AI integration is required. See [agent setup](agent/README.md). Apply the Photon migration to the website's database and configure the website's Photon settings plus `SUPABASE_SERVICE_ROLE_KEY`. The agent requires matching project/token settings, its Spectrum project secret and the reachable website URL. Code being present does not indicate a live line or confirmed delivery.
+
+For an independent backend with UNCitall confirmation emails and working direct Google OAuth, follow [integration setup](docs/integration-setup.md). Run `bun run check:integrations` to list missing settings without exposing credentials.
