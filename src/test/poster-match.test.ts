@@ -21,6 +21,7 @@ describe("poster matches", () => {
   it("does not invent a listing for unrelated or generic text", () => {
     expect(matchPoster("Join the UNC event in Chapel Hill", events, []).events).toEqual([]);
     expect(matchPoster("intergalactic zebras", events, []).events).toEqual([]);
+    expect(matchPoster("Free campus events October Sunday", events, []).events).toEqual([]);
   });
   it("matches only existing clubs and limits results", () => {
     const clubs = Array.from({ length: 8 }, (_, i) => ({

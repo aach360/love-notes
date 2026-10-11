@@ -15,6 +15,27 @@ const STOP = new Set([
   "https",
   "www",
   "com",
+  "free",
+  "campus",
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ]);
 const tokens = (text: string) =>
   new Set(
@@ -44,7 +65,7 @@ export function matchPoster(text: string, events: PulseEvent[], clubs: Club[]) {
           [event.organizer, event.description, event.location].filter(Boolean).join(" "),
         ),
       }))
-      .filter((item) => item.score >= 3)
+      .filter((item) => item.score >= 4)
       .sort((a, b) => b.score - a.score || a.event.startsAt.localeCompare(b.event.startsAt))
       .filter(({ event }) => {
         const title = [...tokens(event.title)].join(" ");
@@ -56,7 +77,7 @@ export function matchPoster(text: string, events: PulseEvent[], clubs: Club[]) {
       .map((item) => item.event),
     clubs: clubs
       .map((club) => ({ club, score: score(club.name, club.description ?? "") }))
-      .filter((item) => item.score >= 3)
+      .filter((item) => item.score >= 4)
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
       .map((item) => item.club),
