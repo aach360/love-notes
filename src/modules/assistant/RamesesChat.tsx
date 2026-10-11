@@ -147,10 +147,10 @@ export function RamesesChat() {
         <div
           role="dialog"
           aria-label="Ask Rameses"
-          className="rameses-panel aero-panel mb-2 flex h-[min(30rem,calc(100dvh-9rem))] w-[min(22.5rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-3xl max-sm:fixed max-sm:inset-x-2 max-sm:bottom-2 max-sm:h-[55dvh] max-sm:w-auto"
+          className="rameses-panel aero-panel mb-2 flex h-[min(30rem,calc(100dvh-13rem))] w-[min(22.5rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-3xl max-sm:fixed max-sm:inset-x-2 max-sm:bottom-2 max-sm:h-[55dvh] max-sm:w-auto"
         >
           <div className="flex shrink-0 items-center gap-2 bg-navy px-3 py-2.5 text-navy-foreground">
-            <img src={rameses} alt="" className="size-8 rounded-full bg-white/90 object-contain p-0.5" />
+            <img src={rameses} alt="" className="size-11 rounded-full bg-white/90 object-contain p-0.5" />
             <p className="font-display flex-1 text-sm font-extrabold">Ask Rameses</p>
             <button type="button" onClick={() => setOpen(false)} aria-label="Minimize chat" className="rounded-full p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-carolina">
               <Minus className="size-4" />
