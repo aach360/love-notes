@@ -153,7 +153,7 @@ export function RamesesChat() {
           </div>
 
           <div ref={listRef} aria-live="polite" className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3">
-            {log.length === 0 && !typing && (
+            {log.length === 0 && !pending && (
               <div className="aero-solid max-w-[90%] rounded-3xl rounded-bl-md p-3">
                 <p className="text-sm font-semibold text-navy">Hey! I can help you find events, plan your week, or track down free food. What's up?</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
