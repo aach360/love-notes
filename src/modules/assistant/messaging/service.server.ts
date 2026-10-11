@@ -285,7 +285,7 @@ async function queueClubs(contacts: PhotonContact[], events: PulseEvent[], now: 
       checked(
         await db
           .from("club_members")
-          .select("id,club_id,joined_at,alerts_opt_in,clubs(name)")
+          .select("id,club_id,joined_at,alerts_opt_in,clubs(name,join_code)")
           .eq("phone", c.sender),
       ) ?? [];
     for (const m of members) {
@@ -309,7 +309,8 @@ async function queueClubs(contacts: PhotonContact[], events: PulseEvent[], now: 
           dedupe_key: `club:${c.id}:${msg.id}`,
           contact_id: c.id,
           kind: "club",
-          body: `[${name}] ${msg.author_name}: ${msg.body}`,
+          club_id: m.club_id,
+          body: `[${name}] ${msg.author_name}: ${msg.body}\nReply: ${m.clubs?.join_code} your message\nSTOP stops all texts.`,
           expires_at: new Date(Date.parse(msg.created_at) + 10 * 60_000).toISOString(),
         });
       }
@@ -321,6 +322,7 @@ async function queueClubs(contacts: PhotonContact[], events: PulseEvent[], now: 
           dedupe_key: `alert:${c.id}:${e.id}`,
           contact_id: c.id,
           kind: "alert",
+          club_id: m.club_id,
           event_id: e.id,
           event_start: e.startsAt,
           body: `New from ${e.organizer}: ${e.title} — ${formatEventDate(e)} Eastern${e.sourceUrl ? `\n${e.sourceUrl}` : ""}`,

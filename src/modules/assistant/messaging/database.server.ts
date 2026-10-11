@@ -26,6 +26,10 @@ type MessagingDatabase = Omit<Database, "public"> & {
       }>;
     };
     Functions: {
+      photon_club_link: {
+        Args: { p_user: string; p_club: string; p_device_hash: string; p_enabled: boolean };
+        Returns: boolean;
+      };
       photon_receive: { Args: { p: Json }; Returns: boolean };
       photon_account: {
         Args: { p_user: string; p_action: string; p_value?: Json };

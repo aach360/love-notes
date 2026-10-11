@@ -38,3 +38,30 @@ export const updatePhotonConnection = createServerFn({ method: "POST" })
     await accountAction(context.userId, data.action, data);
     return { ok: true };
   });
+
+export const connectClubIMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((value: unknown) =>
+    z
+      .object({
+        clubId: z.string().uuid(),
+        deviceToken: z.string().min(20).max(100),
+        enabled: z.boolean(),
+      })
+      .parse(value),
+  )
+  .handler(async ({ context, data }) => {
+    const { messagingDb, checked } = await import("./database.server");
+    const { sha256 } = await import("@/modules/clubs/clubs.server");
+    const db = await messagingDb();
+    return {
+      enabled: checked(
+        await db.rpc("photon_club_link", {
+          p_user: context.userId,
+          p_club: data.clubId,
+          p_device_hash: await sha256(data.deviceToken),
+          p_enabled: data.enabled,
+        }),
+      ),
+    };
+  });

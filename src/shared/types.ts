@@ -1,5 +1,5 @@
 /**
- * UNCover shared data contract. SINGLE SOURCE OF TRUTH for models.
+ * UNCitall shared data contract. SINGLE SOURCE OF TRUTH for models.
  * Owned jointly — changes require a heads-up to all four branches (see TEAM.md).
  *
  * Convention: `T | null` means "the source did not tell us" — never invent a value.
@@ -223,6 +223,7 @@ export interface PhotonContact {
   last_inbound_at: string;
 }
 export interface PhotonJob {
+  club_id?: string | null;
   id: string;
   dedupe_key: string;
   contact_id: string;

@@ -69,7 +69,7 @@ export function PhotonPanel() {
               ? "Messaging is temporarily unavailable."
               : status?.status === "offline"
                 ? "The messaging agent is offline. Delivery is paused."
-                : "Messaging agent connected."}
+                : "Agent online · your iMessage connection is shown below."}
       </div>
       {!user && (
         <Link
@@ -98,7 +98,11 @@ export function PhotonPanel() {
               )}
               {activeCode && (
                 <div className="aero-solid rounded-2xl p-3 text-sm">
-                  <p>Text this command to the bot, then return here to confirm:</p>
+                  <p>
+                    On Photon Free / Pro, the club organizer must register your exact iMessage
+                    sender under the project’s Users tab first. Use that user’s assigned bot number.
+                  </p>
+                  <p className="mt-2">Text this command to the bot, then return here to confirm:</p>
                   <p className="my-2 select-all font-mono font-bold">link {activeCode.code}</p>
                   <p>
                     Expires at {new Date(activeCode.expiresAt).toLocaleTimeString()}. Do not share
