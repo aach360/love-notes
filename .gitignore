@@ -16,6 +16,11 @@ dist-ssr
 .nitro
 *.local
 
+# Local iMessage agent credentials
+agent/.env
+agent/.env.*
+!agent/.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
