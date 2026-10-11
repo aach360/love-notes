@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMemoryRepository } from "@/modules/ingestion/store";
 import { mapHeelLifeJson, parseHeelLifeRss } from "@/modules/ingestion/adapters";
-import { buildDemoEvents } from "@/fixtures/demo-events";
+import { buildDemoEvents } from "@/test/fixtures/demo-events";
 import { applySwipe, emptyPreferences, getRecommendations } from "@/modules/recommendations/ranking";
 import { createLocalStorage, emptyUserState } from "@/modules/recommendations/storage";
 import { getPlan } from "@/modules/plan/plan";
