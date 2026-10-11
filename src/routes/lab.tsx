@@ -17,6 +17,8 @@ export const Route = createFileRoute("/lab")({
       { name: "robots", content: "noindex" },
       { property: "og:title", content: "Recommendation lab — PulseMatch" },
       { property: "og:description", content: "Developer/demo diagnostics for PulseMatch's hybrid recommender." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(eventsQuery),

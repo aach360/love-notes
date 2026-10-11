@@ -19,6 +19,8 @@ export const Route = createFileRoute("/plan")({
       { name: "description", content: "Your chosen UNC events in time order, with overlap warnings and a listenable itinerary." },
       { property: "og:title", content: "My plan — PulseMatch" },
       { property: "og:description", content: "Your campus event itinerary." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Plan,

@@ -17,6 +17,8 @@ export const Route = createFileRoute("/saved")({
       { name: "description", content: "Events you've saved on PulseMatch. Add them to your plan or open the original page to register." },
       { property: "og:title", content: "Saved events — PulseMatch" },
       { property: "og:description", content: "Your saved UNC campus events." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Saved,
