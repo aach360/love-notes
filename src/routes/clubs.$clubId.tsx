@@ -13,9 +13,9 @@ import { formatEventDate } from "@/shared/time";
 export const Route = createFileRoute("/clubs/$clubId")({
   head: () => ({
     meta: [
-      { title: "Club chat — PulseMatch" },
-      { name: "description", content: "Members-only club chat on PulseMatch, also reachable over iMessage." },
-      { property: "og:title", content: "Club chat — PulseMatch" },
+      { title: "Club chat — UNCover" },
+      { name: "description", content: "Members-only club chat on UNCover, also reachable over iMessage." },
+      { property: "og:title", content: "Club chat — UNCover" },
       { property: "og:description", content: "Your club's chat, all in one place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -84,7 +84,7 @@ function ClubChat() {
             Invite members with join code <span className="rounded bg-muted px-2 py-0.5 font-mono text-sm font-bold">{me.joinCode}</span>
           </p>
           <p className="mt-1 text-muted-foreground">
-            Prefer texting? Members can text the PulseMatch iMessage agent <span className="font-mono">join {me.joinCode} YourName</span> to get this chat on their phone (once the agent is switched on).
+            Prefer texting? Members can text the UNCover iMessage agent <span className="font-mono">join {me.joinCode} YourName</span> to get this chat on their phone (once the agent is switched on).
           </p>
         </div>
       </Panel>

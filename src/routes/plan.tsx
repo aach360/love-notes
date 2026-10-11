@@ -15,9 +15,9 @@ import { formatDayHeading, formatTime, nyDateKey } from "@/shared/time";
 export const Route = createFileRoute("/plan")({
   head: () => ({
     meta: [
-      { title: "My plan — PulseMatch" },
+      { title: "My plan — UNCover" },
       { name: "description", content: "Your chosen UNC events in time order, with overlap warnings and a listenable itinerary." },
-      { property: "og:title", content: "My plan — PulseMatch" },
+      { property: "og:title", content: "My plan — UNCover" },
       { property: "og:description", content: "Your campus event itinerary." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -13,9 +13,9 @@ import type { PulseEvent } from "@/shared/types";
 export const Route = createFileRoute("/saved")({
   head: () => ({
     meta: [
-      { title: "Saved events — PulseMatch" },
-      { name: "description", content: "Events you've saved on PulseMatch. Add them to your plan or open the original page to register." },
-      { property: "og:title", content: "Saved events — PulseMatch" },
+      { title: "Saved events — UNCover" },
+      { name: "description", content: "Events you've saved on UNCover. Add them to your plan or open the original page to register." },
+      { property: "og:title", content: "Saved events — UNCover" },
       { property: "og:description", content: "Your saved UNC campus events." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

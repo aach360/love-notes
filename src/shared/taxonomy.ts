@@ -1,5 +1,5 @@
 /**
- * PulseMatch interest taxonomy — the single, versioned vocabulary shared by
+ * UNCover interest taxonomy — the single, versioned vocabulary shared by
  * event classification, onboarding, and recommendation explanations.
  *
  * Dimensions are kept separate on purpose:

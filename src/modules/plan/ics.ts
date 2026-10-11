@@ -21,7 +21,7 @@ function fold(line: string): string {
 
 export function buildIcs(events: PulseEvent[], opts: { cancelledIds?: Set<string>; stamp?: Date } = {}): string {
   const stamp = utc((opts.stamp ?? new Date()).toISOString());
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PulseMatch//UNC events//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:PulseMatch plan"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//UNCover//UNC events//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:UNCover plan"];
   for (const e of events) {
     lines.push("BEGIN:VEVENT", `UID:${esc(e.id)}@pulsematch`, `DTSTAMP:${stamp}`);
     if (e.allDay) {
@@ -35,7 +35,7 @@ export function buildIcs(events: PulseEvent[], opts: { cancelledIds?: Set<string
     }
     lines.push(`SUMMARY:${esc(e.title)}`);
     if (e.location) lines.push(`LOCATION:${esc(e.location)}`);
-    const desc = [e.organizer ? `Host: ${e.organizer}` : "", e.sourceUrl ? `Details & registration: ${e.sourceUrl}` : "", "Saved in PulseMatch — saving is not an RSVP."].filter(Boolean).join("\n");
+    const desc = [e.organizer ? `Host: ${e.organizer}` : "", e.sourceUrl ? `Details & registration: ${e.sourceUrl}` : "", "Saved in UNCover — saving is not an RSVP."].filter(Boolean).join("\n");
     lines.push(`DESCRIPTION:${esc(desc)}`);
     if (e.sourceUrl) lines.push(`URL:${e.sourceUrl}`);
     if (opts.cancelledIds?.has(e.id)) lines.push("STATUS:CANCELLED");

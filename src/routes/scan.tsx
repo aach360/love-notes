@@ -9,9 +9,9 @@ import { formatEventDate } from "@/shared/time";
 export const Route = createFileRoute("/scan")({
   head: () => ({
     meta: [
-      { title: "Scan a poster — PulseMatch" },
+      { title: "Scan a poster — UNCover" },
       { name: "description", content: "Snap a flyer or club photo and see the club's details and matching UNC events." },
-      { property: "og:title", content: "Scan a poster — PulseMatch" },
+      { property: "og:title", content: "Scan a poster — UNCover" },
       { property: "og:description", content: "Photo of a flyer in, club info and events out." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -94,7 +94,7 @@ function ScanPage() {
           </Panel>
 
           <Panel className="space-y-2 p-4">
-            <h3 className="font-bold text-navy">Clubs on PulseMatch</h3>
+            <h3 className="font-bold text-navy">Clubs on UNCover</h3>
             {result.clubs.length ? result.clubs.map((c) => (
               <Link key={c.id} to="/clubs/$clubId" params={{ clubId: c.id }} className="flex items-center gap-3 rounded-2xl bg-card/60 p-3">
                 <Users className="size-4 text-primary" />

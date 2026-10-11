@@ -8,9 +8,9 @@ import { useAuth } from "@/modules/auth/AuthProvider";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — PulseMatch" },
+      { title: "Sign in — UNCover" },
       { name: "description", content: "Sign in to keep your UNC event picks, saved events and plan on every device." },
-      { property: "og:title", content: "Sign in — PulseMatch" },
+      { property: "og:title", content: "Sign in — UNCover" },
       { property: "og:description", content: "Keep your picks and plan across devices." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

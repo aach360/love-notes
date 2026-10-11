@@ -3,6 +3,7 @@ import { UserRound, Bot, CalendarDays, Heart, Sparkles, Users } from "lucide-rea
 import type { ReactNode } from "react";
 import { useAuth } from "@/modules/auth/AuthProvider";
 import { useUserState } from "@/modules/recommendations/UserStateProvider";
+import { Logo as Brand } from "@/components/Logo";
 
 const NAV = [
   { to: "/", label: "Discover", icon: Sparkles },
@@ -13,19 +14,13 @@ const NAV = [
 ] as const;
 
 const BUBBLES = [
-  { l: "8%", s: 28, d: "26s", delay: "0s", drift: "24px" },
-  { l: "84%", s: 36, d: "30s", delay: "8s", drift: "-28px" },
-  { l: "62%", s: 14, d: "22s", delay: "14s", drift: "-12px" },
-  { l: "26%", s: 18, d: "34s", delay: "5s", drift: "18px" },
-  { l: "46%", s: 44, d: "40s", delay: "18s", drift: "-22px" },
-  { l: "72%", s: 22, d: "28s", delay: "11s", drift: "14px" },
-  { l: "16%", s: 12, d: "20s", delay: "22s", drift: "-10px" },
+  { l: "10%", s: 22, d: "34s", delay: "0s", drift: "18px" },
+  { l: "82%", s: 30, d: "40s", delay: "12s", drift: "-20px" },
+  { l: "55%", s: 14, d: "30s", delay: "22s", drift: "-10px" },
 ];
 
 const CLOUDS = [
-  { t: "6%", l: "-6%", w: "44%", h: "13%", dur: "78s", delay: "0s" },
-  { t: "18%", l: "58%", w: "36%", h: "10%", dur: "96s", delay: "12s" },
-  { t: "34%", l: "18%", w: "30%", h: "8%", dur: "84s", delay: "26s" },
+  { t: "8%", l: "-8%", w: "46%", h: "12%", dur: "110s", delay: "0s" },
 ];
 
 function Ambient() {
@@ -73,9 +68,8 @@ function AccountButton() {
 
 function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2">
-      <span className="aero-btn aero-grass inline-flex size-9 items-center justify-center rounded-full font-display text-lg font-black">P</span>
-      <span className="font-display text-lg font-semibold text-navy">PulseMatch</span>
+    <Link to="/" aria-label="UNCover home" className="flex min-h-11 items-center rounded-full pr-2">
+      <Brand />
     </Link>
   );
 }

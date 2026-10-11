@@ -7,7 +7,7 @@ import { getFeed } from "@/modules/ingestion/importer";
 const Body = z.object({ from: z.string().min(3).max(64), text: z.string().min(1).max(2000) });
 
 const HELP =
-  "PulseMatch commands:\n• join CODE YourName — join a club chat\n• ask <question> — e.g. ask what's on tonight\n• alerts on / alerts off — club event alerts\n• CODE your message — post to a specific club\nAnything else posts to your most recent club.";
+  "UNCover commands:\n• join CODE YourName — join a club chat\n• ask <question> — e.g. ask what's on tonight\n• alerts on / alerts off — club event alerts\n• CODE your message — post to a specific club\nAnything else posts to your most recent club.";
 
 /** Called by the Spectrum agent for every incoming iMessage. Returns the reply text (or null). */
 export const Route = createFileRoute("/api/public/agent/inbound")({

@@ -1,5 +1,5 @@
 /**
- * PulseMatch shared data contract. SINGLE SOURCE OF TRUTH for models.
+ * UNCover shared data contract. SINGLE SOURCE OF TRUTH for models.
  * Owned jointly — changes require a heads-up to all four branches (see TEAM.md).
  *
  * Convention: `T | null` means "the source did not tell us" — never invent a value.

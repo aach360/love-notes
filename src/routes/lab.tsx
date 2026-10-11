@@ -12,11 +12,11 @@ import { PageTitle, Panel } from "@/components/aero";
 export const Route = createFileRoute("/lab")({
   head: () => ({
     meta: [
-      { title: "Recommendation lab (developer view) — PulseMatch" },
-      { name: "description", content: "Developer/demo diagnostics for PulseMatch's hybrid recommender." },
+      { title: "Recommendation lab (developer view) — UNCover" },
+      { name: "description", content: "Developer/demo diagnostics for UNCover's hybrid recommender." },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Recommendation lab — PulseMatch" },
-      { property: "og:description", content: "Developer/demo diagnostics for PulseMatch's hybrid recommender." },
+      { property: "og:title", content: "Recommendation lab — UNCover" },
+      { property: "og:description", content: "Developer/demo diagnostics for UNCover's hybrid recommender." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -34,5 +34,5 @@ export function planNarration(items: PlanItem[]): string {
     const where = e.location ? ` at ${e.location}` : "";
     return `${formatDayHeading(e.startsAt)}, ${e.allDay ? "all day" : formatTime(e.startsAt)}: ${e.title}${where}.`;
   });
-  return `Here is your PulseMatch plan. ${lines.join(" ")}`;
+  return `Here is your UNCover plan. ${lines.join(" ")}`;
 }

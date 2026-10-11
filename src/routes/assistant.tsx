@@ -11,9 +11,9 @@ import { formatEventDate } from "@/shared/time";
 export const Route = createFileRoute("/assistant")({
   head: () => ({
     meta: [
-      { title: "Assistant — PulseMatch" },
+      { title: "Assistant — UNCover" },
       { name: "description", content: "Ask what's happening at UNC — answers come from real listed events with links." },
-      { property: "og:title", content: "Assistant — PulseMatch" },
+      { property: "og:title", content: "Assistant — UNCover" },
       { property: "og:description", content: "Ask about UNC campus events." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

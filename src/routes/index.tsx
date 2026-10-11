@@ -17,9 +17,9 @@ import type { EventFilters } from "@/shared/types";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PulseMatch — Discover UNC campus events" },
+      { title: "UNCover — Discover UNC campus events" },
       { name: "description", content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan." },
-      { property: "og:title", content: "PulseMatch — Discover UNC campus events" },
+      { property: "og:title", content: "UNCover — Discover UNC campus events" },
       { property: "og:description", content: "Swipe through real UNC Chapel Hill events, save favorites, and build your plan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
