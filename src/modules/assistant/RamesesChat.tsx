@@ -21,15 +21,13 @@ const SUGGESTIONS = ["What's happening this weekend?", "Find me something free",
 export function RamesesChat() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: feed } = useQuery(eventsQuery);
-  const { log, ask } = useAssistantChat();
+  const { log, pending, ask } = useAssistantChat();
   const { state, saveEvent } = useUserState();
 
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
-  const [typing, setTyping] = useState(false);
   const [q, setQ] = useState("");
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +40,7 @@ export function RamesesChat() {
   // Auto-scroll to newest message.
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [log, typing, open]);
+  }, [log, pending, open]);
 
   // Focus input when the panel opens.
   useEffect(() => {
@@ -66,7 +64,6 @@ export function RamesesChat() {
   useEffect(
     () => () => {
       if (closeTimer.current) clearTimeout(closeTimer.current);
-      if (typeTimer.current) clearTimeout(typeTimer.current);
     },
     [],
   );
@@ -96,14 +93,9 @@ export function RamesesChat() {
 
   const send = (question: string) => {
     const text = question.trim();
-    if (!text || !feed || typing) return;
+    if (!text || !feed || pending) return;
     setQ("");
-    setTyping(true);
-    // Brief beat so the typing indicator reads as Rameses "thinking".
-    typeTimer.current = setTimeout(() => {
-      ask(text, feed.events);
-      setTyping(false);
-    }, 450);
+    ask(text);
   };
 
   const savedIds = new Set(state.saved.map((s) => s.eventId));
@@ -147,10 +139,10 @@ export function RamesesChat() {
         <div
           role="dialog"
           aria-label="Ask Rameses"
-          className="rameses-panel aero-panel mb-2 flex h-[min(30rem,calc(100dvh-9rem))] w-[min(22.5rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-3xl max-sm:fixed max-sm:inset-x-2 max-sm:bottom-2 max-sm:h-[55dvh] max-sm:w-auto"
+          className="rameses-panel aero-panel mb-2 flex h-[min(30rem,calc(100dvh-13rem))] w-[min(22.5rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-3xl max-sm:fixed max-sm:inset-x-2 max-sm:bottom-2 max-sm:h-[55dvh] max-sm:w-auto"
         >
           <div className="flex shrink-0 items-center gap-2 bg-navy px-3 py-2.5 text-navy-foreground">
-            <img src={rameses} alt="" className="size-8 rounded-full bg-white/90 object-contain p-0.5" />
+            <img src={rameses} alt="" className="size-11 rounded-full bg-white/90 object-contain p-0.5" />
             <p className="font-display flex-1 text-sm font-extrabold">Ask Rameses</p>
             <button type="button" onClick={() => setOpen(false)} aria-label="Minimize chat" className="rounded-full p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-carolina">
               <Minus className="size-4" />
@@ -161,7 +153,7 @@ export function RamesesChat() {
           </div>
 
           <div ref={listRef} aria-live="polite" className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3">
-            {log.length === 0 && !typing && (
+            {log.length === 0 && !pending && (
               <div className="aero-solid max-w-[90%] rounded-3xl rounded-bl-md p-3">
                 <p className="text-sm font-semibold text-navy">Hey! I can help you find events, plan your week, or track down free food. What's up?</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -217,7 +209,7 @@ export function RamesesChat() {
                 </div>
               </div>
             ))}
-            {typing && (
+            {pending && (
               <div className="aero-solid inline-flex gap-1 rounded-3xl rounded-bl-md px-4 py-3" aria-label="Rameses is typing">
                 <span className="typing-dot" />
                 <span className="typing-dot" />
@@ -267,7 +259,7 @@ export function RamesesChat() {
           if (e.key === "Escape" && open) closePanel();
         }}
         className={cn(
-          "rameses-chat-peek h-24 w-24 overflow-hidden rounded-t-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-carolina",
+          "rameses-chat-peek h-36 w-36 overflow-hidden rounded-t-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-carolina max-lg:h-32 max-lg:w-32 max-sm:h-28 max-sm:w-28",
           open && "pointer-events-none opacity-0",
         )}
       >
@@ -276,7 +268,7 @@ export function RamesesChat() {
           alt=""
           width={640}
           height={544}
-          className={cn("rameses-img h-24 w-24 -scale-x-100 object-contain object-top drop-shadow-lg", hovered || open ? "rameses-up" : "rameses-down")}
+          className={cn("rameses-img h-full w-full -scale-x-100 object-contain object-top drop-shadow-lg", hovered || open ? "rameses-up" : "rameses-down")}
         />
       </button>
     </div>

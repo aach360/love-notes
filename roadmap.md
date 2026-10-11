@@ -32,3 +32,5 @@
 - [x] Action dock redesign + swipe-up detail sheet + stable card identity during refresh (Aarav, 2026-10-11); browser checks and 20 regression tests pass
 - [x] Heel Life JSON importer + RSS fallback, no demo, twice-weekly cron, centered detail sheet + swipe-down
 - [x] Replace foot logo with translucent arrow; Rameses as chatbot identity
+- [x] Richer Frutiger Aero background (sun bloom, drifting clouds, grass horizon, more bubbles)
+- [x] Assistant: natural grounded answers via AI gateway, deterministic fallback
