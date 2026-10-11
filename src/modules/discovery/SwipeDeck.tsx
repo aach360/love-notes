@@ -1,185 +1,192 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Heart, X, Undo2 } from "lucide-react";
+import { Heart, X, Undo2, Check } from "lucide-react";
 import type { PulseEvent, RankedEvent, SwipeDirection } from "@/shared/types";
-import { OrbButton } from "@/components/aero";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { EventCard } from "./EventCard";
+import { EventDetail } from "./EventDetail";
 
 const THRESHOLD = 110;
-
 function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
+type Phase = "idle" | "dragging" | "details" | "exiting" | "settling" | "entering";
 
-/**
- * Card lifecycle: idle → dragging → exiting → (record + select next) → entering → idle.
- * While exiting, the captured card is rendered — never ranked[0] — and nothing behind it shows a
- * real event, so the user never sees a runner-up that the re-rank then replaces.
- */
-type Phase = "idle" | "dragging" | "exiting" | "entering";
-
-export function SwipeDeck({
-  ranked,
-  onSwipe,
-  onUndo,
-  canUndo,
-  onDetails,
-  returning,
-  onReturned,
-}: {
+export function SwipeDeck({ ranked, onSwipe, onUndo, canUndo, returning, onReturned }: {
   ranked: RankedEvent[];
-  onSwipe: (e: PulseEvent, d: SwipeDirection) => void;
+  onSwipe: (e: PulseEvent, d: SwipeDirection, card: RankedEvent) => void;
   onUndo: () => void;
   canUndo: boolean;
-  onDetails: (e: PulseEvent) => void;
-  /** Card restored by undo: slides back in from the side it left. */
   returning?: { id: string; dir: SwipeDirection } | null;
   onReturned?: () => void;
 }) {
   const [phase, setPhase] = useState<Phase>("idle");
+  const [active, setActive] = useState<RankedEvent | undefined>(ranked[0]);
   const [exit, setExit] = useState<{ card: RankedEvent; dir: SwipeDirection } | null>(null);
-  const [dx, setDx] = useState(0);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [returnFrom, setReturnFrom] = useState<number | null>(null);
-  const [ripple, setRipple] = useState<{ k: number; dir: SwipeDirection } | null>(null);
-  const start = useRef<{ x: number; y: number } | null>(null);
+  const [confirmation, setConfirmation] = useState<SwipeDirection | "undo" | null>(null);
+  const start = useRef<{ x: number; y: number; intent: "horizontal" | "vertical" | null; pointer: number } | null>(null);
   const busy = useRef(false);
-  const active = exit?.card ?? ranked[0];
+  const recorded = useRef(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const focusBefore = useRef<HTMLElement | null>(null);
 
-  // Warm the cache for the likely next images so the entering card doesn't pop.
+  // Keep a complete visible snapshot, not just an ID. Refreshes never replace its art or title.
+  useLayoutEffect(() => {
+    if (phase === "settling") {
+      if (exit && ranked.some((r) => r.event.id === exit.card.event.id)) return;
+      setActive(ranked[0]);
+      setExit(null);
+      setOffset({ x: 0, y: 0 });
+      const reduced = prefersReducedMotion();
+      setPhase(reduced || !ranked[0] ? "idle" : "entering");
+      busy.current = !reduced && !!ranked[0];
+    } else if (phase === "idle" && (!active || !ranked.some((r) => r.event.id === active.event.id))) {
+      setActive(ranked[0]);
+    }
+  }, [ranked, phase, active, exit]);
+
   useEffect(() => {
     for (const r of ranked.slice(1, 4)) if (r.event.imageUrl) new Image().src = r.event.imageUrl;
   }, [ranked]);
+  useEffect(() => {
+    if (!confirmation) return;
+    const timer = window.setTimeout(() => setConfirmation(null), 1000);
+    return () => window.clearTimeout(timer);
+  }, [confirmation]);
 
   const finish = useCallback(() => {
-    if (!exit) return;
-    const { card, dir } = exit;
-    setExit(null);
-    setDx(0);
-    onSwipe(card.event, dir); // recorded exactly once, here
-    if (prefersReducedMotion()) {
-      setPhase("idle");
-      busy.current = false;
-    } else setPhase("entering");
+    if (!exit || recorded.current) return;
+    recorded.current = true;
+    setPhase("settling");
+    setConfirmation(exit.dir);
+    onSwipe(exit.card.event, exit.dir, exit.card);
   }, [exit, onSwipe]);
+  const commit = useCallback((dir: SwipeDirection) => {
+    if (!active || busy.current) return;
+    busy.current = true;
+    recorded.current = false;
+    start.current = null;
+    setExit({ card: active, dir });
+    setPhase("exiting");
+  }, [active]);
 
-  const commit = useCallback(
-    (dir: SwipeDirection) => {
-      const top = ranked[0];
-      if (!top || busy.current) return;
-      busy.current = true;
-      setRipple({ k: Date.now(), dir });
-      setExit({ card: top, dir });
-      setPhase("exiting");
-    },
-    [ranked],
-  );
-
-  // Reduced motion: no transition will fire, so finish on the next commit.
+  // Transition-end is primary; the fallback also handles interrupted CSS/hidden tabs.
   useEffect(() => {
-    if (phase === "exiting" && prefersReducedMotion()) finish();
+    if (phase !== "exiting") return;
+    if (prefersReducedMotion()) { finish(); return; }
+    const timer = window.setTimeout(finish, 380);
+    return () => window.clearTimeout(timer);
   }, [phase, finish]);
+  useEffect(() => {
+    if (phase !== "entering") return;
+    const timer = window.setTimeout(() => { busy.current = false; setPhase("idle"); }, 350);
+    return () => window.clearTimeout(timer);
+  }, [phase]);
 
-  // Undo: place the restored card off-screen on the side it left, then glide it back.
   useLayoutEffect(() => {
-    if (!returning || !ranked[0] || ranked[0].event.id !== returning.id || busy.current) return;
+    const restored = ranked.find((r) => r.event.id === returning?.id);
+    if (!returning || !restored || busy.current) return;
+    setActive(restored);
     onReturned?.();
     if (prefersReducedMotion()) return;
     setReturnFrom(returning.dir === "like" ? 520 : -520);
-    requestAnimationFrame(() => requestAnimationFrame(() => setReturnFrom(null)));
+    let second = 0;
+    const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setReturnFrom(null)); });
+    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); setReturnFrom(null); };
   }, [returning, ranked, onReturned]);
 
+  const openDetails = useCallback(() => {
+    if (!active || busy.current) return;
+    focusBefore.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    start.current = null;
+    busy.current = true;
+    setOffset({ x: 0, y: 0 });
+    setPhase("details");
+  }, [active]);
+  const undo = useCallback(() => {
+    if (!canUndo || busy.current) return;
+    setConfirmation("undo");
+    onUndo();
+  }, [canUndo, onUndo]);
   useEffect(() => {
     const h = (ev: KeyboardEvent) => {
-      const t = ev.target as HTMLElement;
-      if (ev.repeat || t.closest("input, textarea, [role=dialog]")) return;
-      if (ev.key === "ArrowRight") commit("like");
-      else if (ev.key === "ArrowLeft") commit("pass");
-      else if (ev.key === "Enter" && ranked[0] && t === document.body) onDetails(ranked[0].event);
+      const t = ev.target;
+      if (!(t instanceof HTMLElement) || ev.repeat || busy.current || t.closest("input, textarea, select, [role=dialog]")) return;
+      if (ev.key === "ArrowRight") { ev.preventDefault(); commit("like"); }
+      else if (ev.key === "ArrowLeft") { ev.preventDefault(); commit("pass"); }
+      else if (ev.key === "ArrowUp" || (ev.key === "Enter" && t === document.body)) { ev.preventDefault(); openDetails(); }
+      else if (ev.key.toLowerCase() === "z" && !ev.metaKey && !ev.ctrlKey) { ev.preventDefault(); undo(); }
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [commit, onDetails, ranked]);
+  }, [commit, openDetails, undo]);
 
   if (!active) return null;
-
-  const exiting = phase === "exiting" && exit;
-  const x = exiting ? (exit.dir === "like" ? 560 : -520) : returnFrom ?? dx;
-  const y = exiting && exit.dir === "like" ? -120 : 0;
+  const exiting = phase === "exiting" || phase === "settling";
+  const x = exiting && exit ? (exit.dir === "like" ? 560 : -520) : returnFrom ?? offset.x;
+  const y = exiting && exit?.dir === "like" ? -120 : offset.y;
   const rot = Math.max(-14, Math.min(14, x / 24));
-  const likeOpacity = Math.min(1, Math.max(0, x / THRESHOLD));
-  const passOpacity = Math.min(1, Math.max(0, -x / THRESHOLD));
-  const noTransition = phase === "dragging" || returnFrom !== null;
+  const disabled = phase !== "idle";
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative h-[min(calc(100dvh_-_360px),620px)] min-h-[360px] md:h-[min(calc(100dvh_-_240px),620px)] w-full max-w-md" aria-live="polite">
-        {/* Abstract backplates only — never a real event that may be replaced. */}
+      <div className="relative h-[min(calc(100dvh_-_320px),620px)] min-h-[360px] md:h-[min(calc(100dvh_-_220px),620px)] w-full max-w-md">
         <div aria-hidden className="backplate absolute inset-x-6 bottom-[-14px] top-6 rounded-[2rem]" />
         <div aria-hidden className="backplate absolute inset-x-3 bottom-[-7px] top-3 rounded-[2rem]" />
-        <div
-          key={active.event.id}
-          role="group"
-          aria-label={`${active.event.title}. Right arrow to save, left arrow to pass.`}
-          className={cn(
-            "absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing",
-            phase === "entering" && "animate-card-enter",
-            x > 40 && "glow-like",
-          )}
-          style={{
-            transform: `translate(${x}px, ${y}px) rotate(${rot}deg)`,
-            opacity: exiting && exit.dir === "pass" ? 0 : 1,
-            transition: noTransition ? "none" : exiting ? "transform 280ms cubic-bezier(.4,0,.8,.6), opacity 280ms ease-in" : "transform 320ms cubic-bezier(.2,.9,.3,1.15)",
-          }}
-          onTransitionEnd={(e) => {
-            if (e.target === e.currentTarget && e.propertyName === "transform" && phase === "exiting") finish();
-          }}
-          onAnimationEnd={(e) => {
-            if (e.target === e.currentTarget && phase === "entering") {
-              setPhase("idle");
-              busy.current = false;
-            }
-          }}
+        <div key={active.event.id} ref={cardRef} tabIndex={-1} role="group" aria-label={active.event.title} data-phase={phase} data-event-id={active.event.id}
+          className={cn("absolute inset-0 touch-none cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[2rem]", phase === "entering" && "animate-card-enter", x > 40 && "glow-like")}
+          style={{ transform: `translate(${x}px, ${y}px) rotate(${rot}deg)`, opacity: exiting && exit?.dir === "pass" ? 0 : 1,
+            transition: phase === "dragging" || returnFrom !== null ? "none" : exiting ? "transform 280ms cubic-bezier(.4,0,.8,.6), opacity 280ms ease-in" : "transform 240ms cubic-bezier(.2,.9,.3,1)" }}
+          onTransitionEnd={(e) => { if (e.target === e.currentTarget && e.propertyName === "transform" && phase === "exiting") finish(); }}
+          onAnimationEnd={(e) => { if (e.target === e.currentTarget && phase === "entering") { setPhase("idle"); busy.current = false; } }}
           onPointerDown={(e) => {
-            if (busy.current) return;
-            start.current = { x: e.clientX, y: e.clientY };
-            setPhase("dragging");
-            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            if (busy.current || e.button !== 0 || !e.isPrimary || (e.target instanceof Element && e.target.closest("button, a, summary, input"))) return;
+            start.current = { x: e.clientX, y: e.clientY, intent: null, pointer: e.pointerId };
+            e.currentTarget.setPointerCapture(e.pointerId);
           }}
-          onPointerMove={(e) => start.current && setDx(e.clientX - start.current.x)}
-          onPointerUp={() => {
-            if (!start.current) return;
+          onPointerMove={(e) => {
+            const s = start.current;
+            if (!s || e.pointerId !== s.pointer) return;
+            const dx = e.clientX - s.x, dy = e.clientY - s.y;
+            if (!s.intent) {
+              if (Math.max(Math.abs(dx), Math.abs(dy)) < 12) return;
+              if (Math.abs(dx) > Math.abs(dy) * 1.25) s.intent = "horizontal";
+              else if (Math.abs(dy) > Math.abs(dx) * 1.25) s.intent = "vertical";
+              else return;
+              setPhase("dragging");
+            }
+            setOffset(s.intent === "horizontal" ? { x: dx, y: 0 } : { x: 0, y: Math.max(-90, Math.min(25, dy * .45)) });
+          }}
+          onPointerUp={(e) => {
+            const s = start.current;
+            if (!s || e.pointerId !== s.pointer) return;
             start.current = null;
-            setPhase("idle");
-            if (dx > THRESHOLD) commit("like");
-            else if (dx < -THRESHOLD) commit("pass");
-            else setDx(0);
+            const dx = e.clientX - s.x, dy = e.clientY - s.y;
+            if (s.intent === "horizontal" && Math.abs(dx) > THRESHOLD) commit(dx > 0 ? "like" : "pass");
+            else if (s.intent === "vertical" && dy < -70) openDetails();
+            else { setOffset({ x: 0, y: 0 }); setPhase("idle"); }
           }}
-          onPointerCancel={() => {
-            start.current = null;
-            setPhase("idle");
-            setDx(0);
-          }}
+          onPointerCancel={() => { start.current = null; if (!busy.current) { setPhase("idle"); setOffset({ x: 0, y: 0 }); } }}
         >
-          <EventCard ranked={active} onDetails={() => onDetails(active.event)} />
-          <span style={{ opacity: likeOpacity }} className="aero-btn aero-grass pointer-events-none absolute left-6 top-24 -rotate-12 rounded-2xl px-4 py-2 text-2xl font-black">SAVE</span>
-          <span style={{ opacity: passOpacity }} className="aero-btn aero-rose pointer-events-none absolute right-6 top-24 rotate-12 rounded-2xl px-4 py-2 text-2xl font-black">PASS</span>
+          <EventCard ranked={active} onDetails={openDetails} />
+          <span style={{ opacity: Math.min(1, Math.max(0, x / THRESHOLD)) }} className="swipe-stamp pointer-events-none absolute left-6 top-24 -rotate-12 text-like">SAVE</span>
+          <span style={{ opacity: Math.min(1, Math.max(0, -x / THRESHOLD)) }} className="swipe-stamp pointer-events-none absolute right-6 top-24 rotate-12 text-destructive">PASS</span>
         </div>
       </div>
-
-      <div className="relative mt-5 flex items-center gap-5 rounded-full px-4 py-2">
-        {ripple && <span key={ripple.k} aria-hidden className={cn("dock-ripple", ripple.dir === "like" ? "dock-ripple-like" : "dock-ripple-pass")} />}
-        {ripple?.dir === "like" && <span key={`f${ripple.k}`} aria-hidden className="save-fly" />}
-        <OrbButton tone="rose" className="press size-16" aria-label="Pass (left arrow)" onClick={() => commit("pass")}>
-          <X className="size-8" strokeWidth={3} />
-        </OrbButton>
-        <OrbButton tone="pearl" className="press size-11" aria-label="Undo last swipe" disabled={!canUndo || phase !== "idle"} onClick={onUndo}>
-          <Undo2 className="size-5" />
-        </OrbButton>
-        <OrbButton tone="grass" className="press size-16" aria-label="Save (right arrow)" onClick={() => commit("like")}>
-          <Heart className="size-8" strokeWidth={3} fill="currentColor" />
-        </OrbButton>
+      <div className="action-dock relative mt-5 flex items-center gap-2 p-2" role="group" aria-label="Event actions">
+        <Button variant="dockQuiet" size="touch" aria-label="Undo last swipe" title="Undo last swipe (Z)" disabled={!canUndo || disabled} onClick={undo}><Undo2 /></Button>
+        <span className="h-6 w-px bg-border" aria-hidden />
+        <Button variant="dock" size="touch" aria-label="Pass (left arrow)" title="Pass (left arrow)" disabled={disabled} onClick={() => commit("pass")}><X className="text-destructive" /></Button>
+        <Button variant="dockSave" size="touch" className="min-w-24 font-bold" aria-label="Save (right arrow)" title="Save (right arrow)" disabled={disabled} onClick={() => commit("like")}>
+          {confirmation === "like" ? <Check className="text-like" /> : <Heart className="text-like" />} Save
+        </Button>
       </div>
-      <p className="mt-2 hidden text-xs font-bold text-navy/60 md:block">← pass · → save</p>
+      <div role="status" className="h-6 pt-1 text-xs font-bold text-navy">{confirmation === "like" ? "Saved" : confirmation === "pass" ? "Passed" : confirmation === "undo" ? "Restored" : ""}</div>
+      <EventDetail event={phase === "details" ? active.event : null} sheet
+        onClose={() => { busy.current = false; setPhase("idle"); }}
+        restoreFocus={() => { const el = focusBefore.current; if (el?.isConnected && el !== document.body) el.focus(); else cardRef.current?.focus(); }} />
     </div>
   );
 }
