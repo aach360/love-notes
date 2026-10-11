@@ -48,7 +48,7 @@ function Ambient() {
         />
       ))}
       <div className="water-line absolute inset-x-0 bottom-0 h-[30vh]" />
-      <div className="aero-grass" />
+      <div className="aero-hill" />
       {BUBBLES.map((b, i) => (
         <span
           key={i}
