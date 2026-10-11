@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronRight, X } from "lucide-react";
 import type { DateFilter, EventFilters } from "@/shared/types";
 import { cn } from "@/lib/utils";
+import { AeroButton } from "@/components/aero";
 
 const DATES: { v: DateFilter; l: string }[] = [
   { v: "any", l: "Anytime" },
@@ -13,17 +14,17 @@ const DATES: { v: DateFilter; l: string }[] = [
 
 function Pill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
+    <AeroButton
       type="button"
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full px-3 py-1.5 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-carolina",
+        "min-h-11 rounded-xl px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-carolina",
         active ? "aero-btn aero-aqua" : "aero-btn aero-pearl",
       )}
     >
       {children}
-    </button>
+    </AeroButton>
   );
 }
 
@@ -99,7 +100,7 @@ export function FilterSidebar({
 
   useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
 
-  const active = (value.date !== "any" ? 1 : 0) + (value.category ? 1 : 0) + (value.confirmedFreeOnly ? 1 : 0);
+  const active = (value.date !== "any" ? 1 : 0) + (value.category ? 1 : 0);
 
   return (
     <>
@@ -119,8 +120,8 @@ export function FilterSidebar({
         <div id="filter-sidebar-body" inert={!open} aria-hidden={!open} className="filter-body aero-panel flex h-full flex-col overflow-hidden rounded-r-3xl">
           <div className="flex shrink-0 items-center justify-between bg-navy px-4 py-3 text-navy-foreground">
             <div>
-              <p className="font-display text-base font-extrabold">Filter your pulse</p>
-              <p className="text-[11px] opacity-80">{active ? `${active} active` : "Tar Heels have your back"}</p>
+              <p className="font-display text-base font-semibold">Filters</p>
+              <p className="text-[11px] opacity-80">{active ? `${active} active` : "All upcoming events"}</p>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close filters" className="rounded-full p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-carolina">
               <X className="size-4" />
@@ -133,7 +134,6 @@ export function FilterSidebar({
                 {DATES.map((d) => (
                   <Pill key={d.v} active={value.date === d.v} onClick={() => onChange({ ...value, date: d.v })}>{d.l}</Pill>
                 ))}
-                <Pill active={value.confirmedFreeOnly} onClick={() => onChange({ ...value, confirmedFreeOnly: !value.confirmedFreeOnly })}>Confirmed free</Pill>
               </div>
             </section>
             <section>
